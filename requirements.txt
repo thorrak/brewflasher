@@ -1,0 +1,4 @@
+esptool==2.6
+wxPython
+PyInstaller==3.4
+requests
