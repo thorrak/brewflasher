@@ -1,11 +1,15 @@
 import requests
 import copy
+import os.path, sys
+import fhash
+
 
 FERMENTRACK_COM_URL = "http://www.fermentrack.com"
 
 
 class Project:
-    def __init__(self, name="", weight=0, description="", support_url="", id=0, project_url="", documentation_url=""):
+    def __init__(self, name="", weight=0, description="", support_url="", id=0, project_url="", documentation_url="",
+                 show=""):
         self.name = name
         self.weight = weight
         self.description = description
@@ -13,6 +17,7 @@ class Project:
         self.id = id
         self.project_url = project_url
         self.documentation_url = documentation_url
+        self.show = show
 
         self.device_families = {}
 
@@ -48,7 +53,72 @@ class Firmware:
         self.project_id = project_id
 
     def __str__(self):
-        return self.name
+        str_rep = self.name
+
+        if len(self.version) > 0:
+            str_rep += " - v{}".format(self.version)
+        if len(self.revision) > 0:
+            str_rep += " - rev {}".format(self.revision)
+        if len(self.variant) > 0:
+            str_rep += " - {}".format(self.variant)
+        return str_rep
+
+    @classmethod
+    def download_file(cls, full_path, url, checksum, check_checksum, force_download):
+        if os.path.isfile(full_path):
+            if force_download:  # If we're just going to force the download anyways, just kill the file
+                os.remove(full_path)
+            elif checksum == fhash.hash_of_file(full_path):  # If the file already exists check the checksum
+                # The file is valid - return the path
+                return True
+            else:
+                # The checksum check failed - Kill the file
+                os.remove(full_path)
+
+        if len(url) < 12:  # If we don't have a URL, we can't download anything
+            return False
+
+        # So either we don't have a downloaded copy (or it's invalid). Let's download a new one.
+        r = requests.get(url, stream=True)
+
+        with open(full_path, str("wb")) as f:
+            for chunk in r.iter_content():
+                f.write(chunk)
+
+        # Now, let's check that the file is valid (but only if check_checksum is true)
+        if check_checksum:
+            if os.path.isfile(full_path):
+                # If the file already exists check the checksum (and delete if it fails)
+                if checksum != fhash.hash_of_file(full_path):
+                    os.remove(full_path)
+                    return False
+            else:
+                return False
+        # The file is valid (or we aren't checking checksums). Return the path.
+        return True
+
+    def full_filepath(self, bintype: str):
+        if getattr(sys, 'frozen', False):
+            cur_filepath = os.path.dirname(os.path.realpath(sys._MEIPASS))
+        else:
+            cur_filepath = os.path.dirname(os.path.realpath(__file__))
+        return os.path.join(cur_filepath, bintype + ".bin")
+
+    def download_to_file(self, check_checksum=True, force_download=False):
+        # If this is a multi-part firmware (ESP32, with partitions or SPIFFS) then download the additional parts.
+        if len(self.download_url_partitions) > 12:
+            if not self.download_file(self.full_filepath("partitions"), self.download_url_partitions,
+                                      self.checksum_partitions, check_checksum, force_download):
+                return False
+
+        if len(self.download_url_spiffs) > 12 and len(self.spiffs_address) > 2:
+            if not self.download_file(self.full_filepath("spiffs"), self.download_url_spiffs,
+                                      self.checksum_spiffs, check_checksum, force_download):
+                return False
+
+        # Always download the main firmware
+        return self.download_file(self.full_filepath("firmware"), self.download_url, self.checksum, check_checksum, force_download)
+
 
 
 class DeviceFamily:
@@ -89,7 +159,8 @@ class FirmwareList:
                     # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
                     newProject = Project(name=row['name'], weight=row['weight'], id=row['id'],
                                          description=row['description'], support_url=row['support_url'],
-                                         project_url=row['project_url'], documentation_url=row['documentation_url'])
+                                         project_url=row['project_url'], documentation_url=row['documentation_url'],
+                                         show=row['show_in_standalone_flasher'])
                     self.Projects[row['id']] = copy.deepcopy(newProject)
                 except:
                     pass
@@ -185,6 +256,72 @@ class FirmwareList:
                     self.cleanse_projects()
                     return True
         return False
+
+    def get_project_list(self):
+        available_projects = [""]
+        for this_project_id in self.Projects:
+            available_projects.append(str(self.Projects[this_project_id]))
+        if len(available_projects) == 0:
+            available_projects = ["Unable to download project list"]
+        return available_projects
+
+    def get_project_id(self, project_str) -> int or None:
+        # Returns the id in self.Projects for the project with the selected name, or returns None if it cannot be found
+        for this_project_id in self.Projects:
+            if str(self.Projects[this_project_id]) == project_str:
+                return this_project_id
+        return None
+
+    def get_device_family_id(self, project_id, device_family_str) -> int or None:
+        # Returns the id in self.Projects for the project with the selected name, or returns None if it cannot be found
+        if project_id not in self.Projects:
+            # The project_id was invalid - Return None
+            return None
+
+        for this_family_id in self.Projects[project_id].device_families:
+            if str(self.Projects[project_id].device_families[this_family_id]) == device_family_str:
+                return this_family_id
+        return None
+
+    def get_device_family_list(self, selected_project_id=None):
+        if selected_project_id is None:  # We weren't given a project_id - return a blank list
+            return [""]
+        if selected_project_id not in self.Projects:  # The project_id was invalid  - return a blank list
+            return [""]
+        # Iterate over the list of device_families to populate the list
+        available_devices = [""]
+        for this_family_id in self.Projects[selected_project_id].device_families:
+            available_devices.append(str(self.Projects[selected_project_id].device_families[this_family_id]))
+        return available_devices
+
+    def get_firmware_list(self, selected_project_id=None, selected_family_id=None):
+        if selected_project_id is None:  # We weren't given a project_id - return a blank list
+            return [""]
+        if selected_project_id not in self.Projects:  # The project_id was invalid  - return a blank list
+            return [""]
+        if selected_family_id is None:  # We weren't given a project_id - return a blank list
+            return [""]
+        if selected_family_id not in self.Projects[selected_project_id].device_families:  # The family_id was invalid  - return a blank list
+            return [""]
+        # Iterate over the list of device_families to populate the list
+        available_firmware = [""]
+        for this_firmware in self.Projects[selected_project_id].device_families[selected_family_id].firmware:
+            available_firmware.append(str(this_firmware))
+        return available_firmware
+
+    def get_firmware(self, project_id, family_id, firmware_str) -> Firmware or None:
+        # Returns the id in self.Projects for the project with the selected name, or returns None if it cannot be found
+        if project_id not in self.Projects:
+            # The project_id was invalid - Return None
+            return None
+        if family_id not in self.Projects[project_id].device_families:
+            # The family_id was invalid  - Return None
+            return None
+        # Iterate throuh the list of firmware to find the appropriate one
+        for this_firmware in self.Projects[project_id].device_families[family_id].firmware:
+            if str(this_firmware) == firmware_str:
+                return this_firmware
+        return None
 
 
 if __name__ == "__main__":

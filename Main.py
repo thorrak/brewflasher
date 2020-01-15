@@ -18,6 +18,10 @@ from esptool import NotImplementedInROMError
 from esptool import FatalError
 from argparse import Namespace
 
+# Load the import & initialize the firmware_list
+import fermentrack_integration
+firmware_list = fermentrack_integration.FirmwareList()
+
 __version__ = "4.0"
 __flash_help__ = '''
 <p>This setting is highly dependent on your device!<p>
@@ -76,15 +80,60 @@ class FlashingThread(threading.Thread):
         try:
             command = []
 
+            # Fermentrack-specific config options
+            if self._config.project_string == "" or  self._config.project_id is None:
+                print("Must select the project to flash before flashing.")
+                return
+            if self._config.device_family_string == "" or self._config.device_family_id is None:
+                print("Must select the device family being flashed before flashing.")
+                return
+            if self._config.firmware_string == "" or self._config.firmware_obj is None:
+                print("Must select the firmware to flash before flashing.")
+                return
+
+            print("Downloading firmware...")
+            if self._config.firmware_obj.download_to_file():
+                print("Downloaded successfully!\n")
+            else:
+                print("Error - unable to download firmware.\n")
+
+            if self._config.device_family_string == "ESP32":
+                command_extension = ["--chip", "esp32",
+                                     "--baud", str(self._config.baud),
+                                     "--before", "default_reset", "--after", "hard_reset",
+                                     "write_flash",  "0x10000",
+                                     self._config.firmware_obj.full_filepath("firmware")]
+                # For the ESP32, we can flash a custom partition table if we need it. If this firmware template involves
+                # flashing a partition table, lets add that to the flash request
+                if len(self._config.firmware_obj.download_url_partitions) > 0 and len(
+                        self._config.firmware_obj.checksum_partitions) > 0:
+                    command_extension.append("0x8000")
+                    command_extension.append(self._config.firmware_obj.full_filepath("partitions"))
+            else:
+                command_extension = ["--chip", "esp8266",
+                                     "write_flash",
+                                     "--flash_mode", self._config.mode, "0x00000",
+                                     self._config.firmware_obj.full_filepath("firmware")]
+
+
+            # For both ESP32 and ESP8266 we can directly flash an image to SPIFFS.
+            if len(self._config.firmware_obj.download_url_spiffs) > 0 and \
+                    len(self._config.firmware_obj.checksum_spiffs) > 0 and \
+                    len(self._config.firmware_obj.spiffs_address) > 2:
+                # We need to flash SPIFFS. The location is dependent on the partition scheme, so we need to use the address
+                command_extension.append(self._config.firmware_obj.spiffs_address)
+                command_extension.append(self._config.firmware_obj.full_filepath("spiffs"))
+
             if not self._config.port.startswith(__auto_select__):
                 command.append("--port")
                 command.append(self._config.port)
 
-            command.extend(["--baud", str(self._config.baud),
-                            "--after", "no_reset",
-                            "write_flash",
-                            "--flash_mode", self._config.mode,
-                            "0x00000", self._config.firmware_path])
+            # command.extend(["--baud", str(self._config.baud),
+            #                 "--after", "no_reset",
+            #                 "write_flash",
+            #                 "--flash_mode", self._config.mode,
+            #                 "0x00000", self._config.firmware_path])
+            command.extend(command_extension)
 
             if self._config.erase_before_flash:
                 command.append("--erase-all")
@@ -113,7 +162,16 @@ class FlashConfig:
         self.erase_before_flash = False
         self.mode = "dio"
         self.firmware_path = None
-        self.port = None
+        # self.port = None
+        self.port = __auto_select__
+
+        # Fermentrack-specific config options
+        self.project_string = ""
+        self.project_id = None
+        self.device_family_string = ""
+        self.device_family_id = None
+        self.firmware_string = ""
+        self.firmware_obj = None
 
     @classmethod
     def load(cls, file_path):
@@ -166,7 +224,7 @@ class NodeMcuFlasher(wx.Frame):
 
     def _init_ui(self):
         def on_reload(event):
-            self.choice.SetItems(self._get_serial_ports())
+            self.choice.SetItems(self._get_serial_ports())  # self.choice corresponds to the serial port choice
 
         def on_baud_changed(event):
             radio_button = event.GetEventObject()
@@ -187,6 +245,7 @@ class NodeMcuFlasher(wx.Frame):
                 self._config.erase_before_flash = radio_button.erase
 
         def on_clicked(event):
+            # todo - Add error messages here
             self.console_ctrl.SetValue("")
             worker = FlashingThread(self, self._config)
             worker.start()
@@ -195,14 +254,54 @@ class NodeMcuFlasher(wx.Frame):
             choice = event.GetEventObject()
             self._config.port = choice.GetString(choice.GetSelection())
 
-        def on_pick_file(event):
-            self._config.firmware_path = event.GetPath().replace("'", "")
+        def on_select_project(event):
+            choice = event.GetEventObject()
+            # Set the _config options to our selection (and look up the ID)
+            self._config.project_string = choice.GetString(choice.GetSelection())
+            self._config.project_id = firmware_list.get_project_id(self._config.project_string)
+
+            # reset the device_family items
+            self._config.device_family_string = ""
+            self._config.device_family_id = None
+            self.device_choice.SetItems(firmware_list.get_device_family_list(selected_project_id=self._config.project_id))
+
+            # reset the firmware items
+            self._config.firmware_string = ""
+            self._config.firmware_obj = None
+            self.firmware_choice.SetItems(firmware_list.get_firmware_list(selected_project_id=self._config.project_id))
+
+        def on_select_device_family(event):
+            choice = event.GetEventObject()
+            self._config.device_family_string = choice.GetString(choice.GetSelection())
+            if len(self._config.device_family_string) > 0:
+                self._config.device_family_id = firmware_list.get_device_family_id(self._config.project_id,
+                                                                                   self._config.device_family_string)
+            else:
+                self._config.device_family_id = None
+
+            # reset the firmware items
+            self._config.firmware_string = ""
+            self._config.firmware_obj = None
+            self.firmware_choice.SetItems(firmware_list.get_firmware_list(selected_project_id=self._config.project_id,
+                                                                          selected_family_id=self._config.device_family_id))
+
+        def on_select_firmware(event):
+            choice = event.GetEventObject()
+            self._config.firmware_string = choice.GetString(choice.GetSelection())
+            if len(self._config.firmware_string) > 0:
+                self._config.firmware_obj = firmware_list.get_firmware(self._config.project_id,
+                                                                       self._config.device_family_id,
+                                                                       self._config.firmware_string)
+            else:
+                self._config.firmware_obj = None
+
 
         panel = wx.Panel(self)
 
         hbox = wx.BoxSizer(wx.HORIZONTAL)
 
-        fgs = wx.FlexGridSizer(7, 2, 10, 10)
+        # (col, row, x, x)
+        fgs = wx.FlexGridSizer(9, 2, 10, 10)
 
         self.choice = wx.Choice(panel, choices=self._get_serial_ports())
         self.choice.Bind(wx.EVT_CHOICE, on_select_port)
@@ -213,13 +312,29 @@ class NodeMcuFlasher(wx.Frame):
         reload_button.Bind(wx.EVT_BUTTON, on_reload)
         reload_button.SetToolTip("Reload serial device list")
 
-        file_picker = wx.FilePickerCtrl(panel, style=wx.FLP_USE_TEXTCTRL)
-        file_picker.Bind(wx.EVT_FILEPICKER_CHANGED, on_pick_file)
+        self.project_choice = wx.Choice(panel, choices=firmware_list.get_project_list())
+        self.project_choice.Bind(wx.EVT_CHOICE, on_select_project)
+
+        self.device_choice = wx.Choice(panel, choices=firmware_list.get_device_family_list())
+        self.device_choice.Bind(wx.EVT_CHOICE, on_select_device_family)
+
+        self.firmware_choice = wx.Choice(panel, choices=firmware_list.get_firmware_list())
+        self.firmware_choice.Bind(wx.EVT_CHOICE, on_select_firmware)
+
 
         serial_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
         serial_boxsizer.Add(self.choice, 1, wx.EXPAND)
         serial_boxsizer.AddStretchSpacer(0)
         serial_boxsizer.Add(reload_button, 0, wx.ALIGN_RIGHT, 20)
+
+        project_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
+        project_boxsizer.Add(self.project_choice, 1, wx.EXPAND)
+
+        device_family_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
+        device_family_boxsizer.Add(self.device_choice, 1, wx.EXPAND)
+
+        firmware_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
+        firmware_boxsizer.Add(self.firmware_choice, 1, wx.EXPAND)
 
         baud_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -266,7 +381,7 @@ class NodeMcuFlasher(wx.Frame):
         add_erase_radio_button(erase_boxsizer, 0, False, "no", erase is False)
         add_erase_radio_button(erase_boxsizer, 1, True, "yes, wipes all data", erase is True)
 
-        button = wx.Button(panel, -1, "Flash NodeMCU")
+        button = wx.Button(panel, -1, "Flash Controller")
         button.Bind(wx.EVT_BUTTON, on_clicked)
 
         self.console_ctrl = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
@@ -277,7 +392,9 @@ class NodeMcuFlasher(wx.Frame):
         self.console_ctrl.SetDefaultStyle(wx.TextAttr(wx.BLUE))
 
         port_label = wx.StaticText(panel, label="Serial port")
-        file_label = wx.StaticText(panel, label="NodeMCU firmware")
+        project_label = wx.StaticText(panel, label="Project to Flash")
+        device_family_label = wx.StaticText(panel, label="Device Family")
+        firmware_label = wx.StaticText(panel, label="Firmware")
         baud_label = wx.StaticText(panel, label="Baud rate")
         flashmode_label = wx.StaticText(panel, label="Flash mode")
 
@@ -305,13 +422,15 @@ class NodeMcuFlasher(wx.Frame):
 
         fgs.AddMany([
                     port_label, (serial_boxsizer, 1, wx.EXPAND),
-                    file_label, (file_picker, 1, wx.EXPAND),
+                    project_label, (project_boxsizer, 1, wx.EXPAND),
+                    device_family_label, (device_family_boxsizer, 1, wx.EXPAND),
+                    firmware_label, (firmware_boxsizer, 1, wx.EXPAND),
                     baud_label, baud_boxsizer,
                     flashmode_label_boxsizer, flashmode_boxsizer,
                     erase_label, erase_boxsizer,
                     (wx.StaticText(panel, label="")), (button, 1, wx.EXPAND),
                     (console_label, 1, wx.EXPAND), (self.console_ctrl, 1, wx.EXPAND)])
-        fgs.AddGrowableRow(6, 1)
+        fgs.AddGrowableRow(8, 1)
         fgs.AddGrowableCol(1, 1)
         hbox.Add(fgs, proportion=2, flag=wx.ALL | wx.EXPAND, border=15)
         panel.SetSizer(hbox)
@@ -389,6 +508,8 @@ class MySplashScreen(wx.adv.SplashScreen):
         wx.adv.SplashScreen.__init__(self, images.Splash.GetBitmap(),
                                      wx.adv.SPLASH_CENTRE_ON_SCREEN | wx.adv.SPLASH_TIMEOUT, 2500, None, -1)
         self.Bind(wx.EVT_CLOSE, self._on_close)
+        # TODO - Rewrite the splash function so as to actually do this in the background
+        firmware_list.load_from_website()
         self.__fc = wx.CallLater(2000, self._show_main)
 
     def _on_close(self, evt):
