@@ -19,12 +19,12 @@ exe = EXE(pyz,
           a.binaries,
           a.zipfiles,
           a.datas,
-          name='NodeMCU-PyFlasher',
+          name='BrewFlasher',
           debug=False,
           strip=False,
           upx=True,
           console=False , icon='images/icon-256.icns')
 app = BUNDLE(exe,
-             name='NodeMCU-PyFlasher-4.0.app',
+             name='BrewFlasher-1.0.app',
              icon='./images/icon-256.icns',
-             bundle_identifier='com.frightanic.nodemcu-pyflasher')
+             bundle_identifier='com.brewflasher.macos')

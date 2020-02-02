@@ -22,19 +22,22 @@ from argparse import Namespace
 import fermentrack_integration
 firmware_list = fermentrack_integration.FirmwareList()
 
-__version__ = "4.0"
+__version__ = "1.0"
 __flash_help__ = '''
-<p>This setting is highly dependent on your device!<p>
+<p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 <p>
-  Details at <a style="color: #004CE5;"
-        href="https://www.esp32.com/viewtopic.php?p=5523&sid=08ef44e13610ecf2a2a33bb173b0fd5c#p5523">http://bit.ly/2v5Rd32</a>
-  and in the <a style="color: #004CE5;" href="https://github.com/espressif/esptool/#flash-modes">esptool
-  documentation</a>
 <ul>
   <li>Most ESP32 and ESP8266 ESP-12 use DIO.</li>
   <li>Most ESP8266 ESP-01/07 use QIO.</li>
   <li>ESP8285 requires DOUT.</li>
 </ul>
+</p>
+<p>
+  For more information, details are found at at <a style="color: #004CE5;"
+        href="https://www.esp32.com/viewtopic.php?p=5523&sid=08ef44e13610ecf2a2a33bb173b0fd5c#p5523">http://bit.ly/2v5Rd32</a>
+  and in the <a style="color: #004CE5;" href="https://github.com/espressif/esptool/#flash-modes">esptool
+  documentation</a>
+
 </p>
 '''
 __auto_select__ = "Auto-select"
@@ -381,7 +384,7 @@ class NodeMcuFlasher(wx.Frame):
         add_erase_radio_button(erase_boxsizer, 0, False, "no", erase is False)
         add_erase_radio_button(erase_boxsizer, 1, True, "yes, wipes all data", erase is True)
 
-        button = wx.Button(panel, -1, "Flash Controller")
+        button = wx.Button(panel, -1, "Download Firmware and Flash Controller")
         button.Bind(wx.EVT_BUTTON, on_clicked)
 
         self.console_ctrl = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
@@ -456,7 +459,7 @@ class NodeMcuFlasher(wx.Frame):
     def _build_status_bar(self):
         self.statusBar = self.CreateStatusBar(2, wx.STB_SIZEGRIP)
         self.statusBar.SetStatusWidths([-2, -1])
-        status_text = "Welcome to NodeMCU PyFlasher %s" % __version__
+        status_text = "Welcome to BrewFlasher %s" % __version__
         self.statusBar.SetStatusText(status_text, 0)
 
     def _build_menu_bar(self):
@@ -465,14 +468,14 @@ class NodeMcuFlasher(wx.Frame):
         # File menu
         file_menu = wx.Menu()
         wx.App.SetMacExitMenuItemId(wx.ID_EXIT)
-        exit_item = file_menu.Append(wx.ID_EXIT, "E&xit\tCtrl-Q", "Exit NodeMCU PyFlasher")
+        exit_item = file_menu.Append(wx.ID_EXIT, "E&xit\tCtrl-Q", "Exit BrewFlasher")
         exit_item.SetBitmap(images.Exit.GetBitmap())
         self.Bind(wx.EVT_MENU, self._on_exit_app, exit_item)
         self.menuBar.Append(file_menu, "&File")
 
         # Help menu
         help_menu = wx.Menu()
-        help_item = help_menu.Append(wx.ID_ABOUT, '&About NodeMCU PyFlasher', 'About')
+        help_item = help_menu.Append(wx.ID_ABOUT, '&About BrewFlasher', 'About')
         self.Bind(wx.EVT_MENU, self._on_help_about, help_item)
         self.menuBar.Append(help_menu, '&Help')
 
@@ -525,7 +528,7 @@ class MySplashScreen(wx.adv.SplashScreen):
             self._show_main()
 
     def _show_main(self):
-        frame = NodeMcuFlasher(None, "NodeMCU PyFlasher")
+        frame = NodeMcuFlasher(None, "BrewFlasher")
         frame.Show()
         if self.__fc.IsRunning():
             self.Raise()
@@ -537,7 +540,7 @@ class MySplashScreen(wx.adv.SplashScreen):
 class App(wx.App, wx.lib.mixins.inspection.InspectionMixin):
     def OnInit(self):
         wx.SystemOptions.SetOption("mac.window-plain-transition", 1)
-        self.SetAppName("NodeMCU PyFlasher")
+        self.SetAppName("BrewFlasher")
 
         # Create and show the splash screen.  It will then create and
         # show the main frame when it is time to do so.  Normally when
