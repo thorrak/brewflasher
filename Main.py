@@ -395,11 +395,11 @@ class NodeMcuFlasher(wx.Frame):
         self.console_ctrl.SetDefaultStyle(wx.TextAttr(wx.BLUE))
 
         port_label = wx.StaticText(panel, label="Serial port")
-        project_label = wx.StaticText(panel, label="Project to Flash")
-        device_family_label = wx.StaticText(panel, label="Device Family")
-        firmware_label = wx.StaticText(panel, label="Firmware")
-        baud_label = wx.StaticText(panel, label="Baud rate")
-        flashmode_label = wx.StaticText(panel, label="Flash mode")
+        project_label = wx.StaticText(panel, label="Project ")
+        device_family_label = wx.StaticText(panel, label="Device Family ")
+        firmware_label = wx.StaticText(panel, label="Firmware ")
+        baud_label = wx.StaticText(panel, label="Baud rate ")
+        flashmode_label = wx.StaticText(panel, label="Flash mode ")
 
         def on_info_hover(event):
             from HtmlPopupTransientWindow import HtmlPopupTransientWindow

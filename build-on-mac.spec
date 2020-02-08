@@ -27,4 +27,15 @@ exe = EXE(pyz,
 app = BUNDLE(exe,
              name='BrewFlasher-1.0.app',
              icon='./images/icon-256.icns',
-             bundle_identifier='com.brewflasher.macos')
+             bundle_identifier='com.brewflasher.macos',
+             info_plist={
+               'NSPrincipalClass': 'NSApplication',
+               'NSAppleScriptEnabled': False,
+               'LSRequiresIPhoneOS': False,
+               'LSApplicationCategoryType': 'public.app-category.utilities',
+               'CFBundleVersion': '1.0.0',
+               'CFBundleShortVersionString': '1.0',
+               'CFBundleSignature': 'BFLS',
+               'LSMinimumSystemVersion': '10.0.0'
+               },
+            )

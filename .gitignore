@@ -97,3 +97,11 @@ ENV/
 partitions.bin
 spiffs.bin
 firmware.bin
+
+# Other stuff
+package-lock.json
+
+# Exclude scripts which are security-related
+notarize.sh
+staple.sh
+
