@@ -29,7 +29,9 @@ class Firmware:
     def __init__(self, name="", version="", revision="", family_id=0, variant="", is_fermentrack_supported="",
                  in_error="", description="", variant_description="", download_url="", id=0, project_id=0,
                  project_url="", documentation_url="", weight="", download_url_partitions="",
-                 download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address=""):
+                 download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address="",
+                 download_url_bootloader="", checksum_bootloader="",
+                 download_url_otadata="", otadata_address="", checksum_otadata=""):
         self.name = name
         self.version = version
         self.revision = revision
@@ -49,6 +51,11 @@ class Firmware:
         self.checksum_partitions = checksum_partitions
         self.checksum_spiffs = checksum_spiffs
         self.spiffs_address = spiffs_address
+        self.download_url_bootloader = download_url_bootloader
+        self.checksum_bootloader = checksum_bootloader
+        self.download_url_otadata = download_url_otadata
+        self.otadata_address = otadata_address
+        self.checksum_otadata = checksum_otadata
         self.id = id
         self.project_id = project_id
 
@@ -114,6 +121,16 @@ class Firmware:
         if len(self.download_url_spiffs) > 12 and len(self.spiffs_address) > 2:
             if not self.download_file(self.full_filepath("spiffs"), self.download_url_spiffs,
                                       self.checksum_spiffs, check_checksum, force_download):
+                return False
+
+        if len(self.download_url_bootloader) > 12:
+            if not self.download_file(self.full_filepath("bootloader"), self.download_url_bootloader,
+                                      self.checksum_bootloader, check_checksum, force_download):
+                return False
+
+        if len(self.download_url_otadata) > 12 and len(self.otadata_address) > 2:
+            if not self.download_file(self.full_filepath("otadata"), self.download_url_otadata,
+                                      self.checksum_otadata, check_checksum, force_download):
                 return False
 
         # Always download the main firmware
@@ -214,12 +231,15 @@ class FirmwareList:
                         variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
                         in_error=row['in_error'], description=row['description'],
                         variant_description=row['variant_description'], download_url=row['download_url'],
-                        project_url=row['project_url'], documentation_url=row['documentation_url'],
-                        weight=row['weight'],
+                        project_url=row['project_url'], documentation_url=row['documentation_url'], weight=row['weight'],
                         download_url_partitions=row['download_url_partitions'],
                         download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
                         checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
                         spiffs_address=row['spiffs_address'], project_id=row['project_id'],
+                        download_url_bootloader=row['download_url_bootloader'],
+                        checksum_bootloader=row['checksum_bootloader'],
+                        download_url_otadata=row['download_url_otadata'],
+                        otadata_address=row['otadata_address'], checksum_otadata=row['checksum_otadata'],
                     )
                     if newFirmware.family_id in self.valid_family_ids:  # The firmware is for an ESP of some sort
                         # Add the firmware to the appropriate DeviceFamily's list

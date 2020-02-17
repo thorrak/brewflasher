@@ -45,6 +45,7 @@ downloading brewing-related firmware to flash. The firmware selection is taken f
 
 ## License
 This package was based on the NodeMCU PyFlasher project which is licensed under [MIT](http://opensource.org/licenses/MIT) license, the code for which is © Marcel Stör
+
 All subsequent additions are additionally licensed under the [MIT](http://opensource.org/licenses/MIT) license and are © John Beeler
 
 As noted in the license, BrewFlasher is provided without warranty of any kind. As when flashing any microcontroller,

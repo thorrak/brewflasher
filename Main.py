@@ -112,12 +112,19 @@ class FlashingThread(threading.Thread):
                         self._config.firmware_obj.checksum_partitions) > 0:
                     command_extension.append("0x8000")
                     command_extension.append(self._config.firmware_obj.full_filepath("partitions"))
+
+                # For now, I'm assuming bootloader flashing is ESP32 only
+                if len(self._config.firmware_obj.download_url_bootloader) > 0 and \
+                        len(self._config.firmware_obj.checksum_bootloader) > 0:
+                    # We need to flash the bootloader. The location is dependent on the device, so we need to use the address
+                    command_extension.append("0x1000")
+                    command_extension.append(self._config.firmware_obj.full_filepath("bootloader"))
+
             else:
                 command_extension = ["--chip", "esp8266",
                                      "write_flash",
                                      "--flash_mode", self._config.mode, "0x00000",
                                      self._config.firmware_obj.full_filepath("firmware")]
-
 
             # For both ESP32 and ESP8266 we can directly flash an image to SPIFFS.
             if len(self._config.firmware_obj.download_url_spiffs) > 0 and \
@@ -126,6 +133,16 @@ class FlashingThread(threading.Thread):
                 # We need to flash SPIFFS. The location is dependent on the partition scheme, so we need to use the address
                 command_extension.append(self._config.firmware_obj.spiffs_address)
                 command_extension.append(self._config.firmware_obj.full_filepath("spiffs"))
+
+
+            # For both ESP32 and ESP8266 we can directly flash an image to the otadata section (I think?).
+            if len(self._config.firmware_obj.download_url_otadata) > 0 and \
+                    len(self._config.firmware_obj.checksum_otadata) > 0 and \
+                    len(self._config.firmware_obj.otadata_address) > 2:
+                # We need to flash the otadata section. The location is dependent on the partition scheme, so we need to use the address
+                command_extension.append(self._config.firmware_obj.otadata_address)
+                command_extension.append(self._config.firmware_obj.full_filepath("otadata"))
+
 
             if not self._config.port.startswith(__auto_select__):
                 command.append("--port")

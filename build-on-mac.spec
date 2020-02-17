@@ -33,7 +33,7 @@ app = BUNDLE(exe,
                'NSAppleScriptEnabled': False,
                'LSRequiresIPhoneOS': False,
                'LSApplicationCategoryType': 'public.app-category.utilities',
-               'CFBundleVersion': '1.0.0',
+               'CFBundleVersion': '1.0.1',
                'CFBundleShortVersionString': '1.0',
                'CFBundleSignature': 'BFLS',
                'LSMinimumSystemVersion': '10.0.0'

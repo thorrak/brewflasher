@@ -93,10 +93,15 @@ ENV/
 # MacOS Specific
 .DS_Store
 
+# Windows specific
+Thumbs.db
+
 # Ignore any downloaded firmware
 partitions.bin
 spiffs.bin
 firmware.bin
+bootloader.bin
+otadata.bin
 
 # Other stuff
 package-lock.json
