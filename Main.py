@@ -22,7 +22,7 @@ from argparse import Namespace
 import fermentrack_integration
 firmware_list = fermentrack_integration.FirmwareList()
 
-__version__ = "1.0"
+__version__ = "1.2"
 __flash_help__ = '''
 <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 <p>
@@ -345,7 +345,7 @@ class NodeMcuFlasher(wx.Frame):
         serial_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
         serial_boxsizer.Add(self.choice, 1, wx.EXPAND)
         serial_boxsizer.AddStretchSpacer(0)
-        serial_boxsizer.Add(reload_button, 0, wx.ALIGN_RIGHT, 20)
+        serial_boxsizer.Add(reload_button, 0, 0, 20)
 
         project_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
         project_boxsizer.Add(self.project_choice, 1, wx.EXPAND)
@@ -435,7 +435,7 @@ class NodeMcuFlasher(wx.Frame):
         flashmode_label_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
         flashmode_label_boxsizer.Add(flashmode_label, 1, wx.EXPAND)
         flashmode_label_boxsizer.AddStretchSpacer(0)
-        flashmode_label_boxsizer.Add(icon, 0, wx.ALIGN_RIGHT, 20)
+        flashmode_label_boxsizer.Add(icon, 0, 0, 20)
 
         erase_label = wx.StaticText(panel, label="Erase flash")
         console_label = wx.StaticText(panel, label="Console")
