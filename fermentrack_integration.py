@@ -1,10 +1,13 @@
+from pathlib import Path
+import os.path
 import requests
 import copy
-import os.path, sys
+import sys
 import fhash
 
 
 FERMENTRACK_COM_URL = "http://www.fermentrack.com"
+MODEL_VERSION = 3
 
 
 class Project:
@@ -28,7 +31,7 @@ class Project:
 class Firmware:
     def __init__(self, name="", version="", revision="", family_id=0, variant="", is_fermentrack_supported="",
                  in_error="", description="", variant_description="", download_url="", id=0, project_id=0,
-                 project_url="", documentation_url="", weight="", download_url_partitions="",
+                 post_install_instructions="", weight="", download_url_partitions="",
                  download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address="",
                  download_url_bootloader="", checksum_bootloader="",
                  download_url_otadata="", otadata_address="", checksum_otadata=""):
@@ -42,8 +45,7 @@ class Firmware:
         self.description = description
         self.variant_description = variant_description
         self.download_url = download_url
-        self.project_url = project_url
-        self.documentation_url = documentation_url
+        self.post_install_instructions = post_install_instructions
         self.weight = weight
         self.download_url_partitions = download_url_partitions
         self.download_url_spiffs = download_url_spiffs
@@ -180,6 +182,7 @@ class FirmwareList:
                                          show=row['show_in_standalone_flasher'])
                     self.Projects[row['id']] = copy.deepcopy(newProject)
                 except:
+                    # TODO - Display an error message
                     pass
 
             return True
@@ -206,6 +209,7 @@ class FirmwareList:
                         for this_project in self.Projects:
                             self.Projects[this_project].device_families[newFamily.id] = copy.deepcopy(newFamily)
                 except:
+                    # TODO - Display an error message
                     pass
 
             return True
@@ -231,7 +235,7 @@ class FirmwareList:
                         variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
                         in_error=row['in_error'], description=row['description'],
                         variant_description=row['variant_description'], download_url=row['download_url'],
-                        project_url=row['project_url'], documentation_url=row['documentation_url'], weight=row['weight'],
+                        post_install_instructions=row['post_install_instructions'], weight=row['weight'],
                         download_url_partitions=row['download_url_partitions'],
                         download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
                         checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
@@ -247,6 +251,7 @@ class FirmwareList:
                         self.Projects[newFirmware.project_id].device_families[newFirmware.family_id].firmware.append(
                             newFirmware)
                 except:
+                    # TODO - Display an error message
                     pass
 
             return True  # Firmware table is updated

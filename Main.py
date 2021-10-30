@@ -101,6 +101,7 @@ class FlashingThread(threading.Thread):
                 print("Error - unable to download firmware.\n")
 
             if self._config.device_family_string == "ESP32":
+                # This command matches the ESP32 flash options JSON from Fermentrack.com
                 command_extension = ["--chip", "esp32",
                                      "--baud", str(self._config.baud),
                                      "--before", "default_reset", "--after", "hard_reset",
