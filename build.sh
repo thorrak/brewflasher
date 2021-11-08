@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 #rm -fr build dist
-VERSION=1.0
-NAME=BrewFlasher
+#VERSION=1.2
+#NAME=BrewFlasher
 
-pyinstaller --log-level=DEBUG \
+pyinstaller --log-level=INFO \
             --noconfirm \
+            --target-arch x86_64 \
             build-on-mac.spec
 
 #https://github.com/sindresorhus/create-dmg

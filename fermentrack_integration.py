@@ -29,7 +29,7 @@ class Project:
 
 
 class Firmware:
-    def __init__(self, name="", version="", revision="", family_id=0, variant="", is_fermentrack_supported="",
+    def __init__(self, name="", version="", family_id=0, variant="", is_fermentrack_supported="",
                  in_error="", description="", variant_description="", download_url="", id=0, project_id=0,
                  post_install_instructions="", weight="", download_url_partitions="",
                  download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address="",
@@ -37,7 +37,6 @@ class Firmware:
                  download_url_otadata="", otadata_address="", checksum_otadata=""):
         self.name = name
         self.version = version
-        self.revision = revision
         self.family_id = family_id
         self.variant = variant
         self.is_fermentrack_supported = is_fermentrack_supported
@@ -66,8 +65,6 @@ class Firmware:
 
         if len(self.version) > 0:
             str_rep += " - v{}".format(self.version)
-        if len(self.revision) > 0:
-            str_rep += " - rev {}".format(self.revision)
         if len(self.variant) > 0:
             str_rep += " - {}".format(self.variant)
         return str_rep
@@ -231,7 +228,7 @@ class FirmwareList:
                     # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
                     # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
                     newFirmware = Firmware(
-                        name=row['name'], version=row['version'], revision=row['revision'], family_id=row['family_id'],
+                        name=row['name'], version=row['version'], family_id=row['family_id'],
                         variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
                         in_error=row['in_error'], description=row['description'],
                         variant_description=row['variant_description'], download_url=row['download_url'],
