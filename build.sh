@@ -5,7 +5,7 @@
 
 pyinstaller --log-level=INFO \
             --noconfirm \
-            build-on-mac.spec
+            build-on-mac-m1.spec
 
 #https://github.com/sindresorhus/create-dmg
 #create-dmg dist/$NAME-$VERSION.app
