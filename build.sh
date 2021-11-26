@@ -5,7 +5,6 @@
 
 pyinstaller --log-level=INFO \
             --noconfirm \
-            --target-arch x86_64 \
             build-on-mac.spec
 
 #https://github.com/sindresorhus/create-dmg

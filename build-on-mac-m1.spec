@@ -23,7 +23,7 @@ exe = EXE(pyz,
           debug=False,
           strip=False,
           upx=True,
-          target_arch='x86_64',
+          target_arch='arm64',
           entitlements_file='Entitlements.plist',
           codesign_identity='Developer ID Application: John Beeler (RAS94LVJ7S)',
           console=False , icon='images/icon-256.icns')
