@@ -6,7 +6,7 @@ import sys
 import fhash
 
 
-FERMENTRACK_COM_URL = "http://www.fermentrack.com"
+BREWFLASHER_COM_URL = "https://www.brewflasher.com/firmware"
 MODEL_VERSION = 3
 
 
@@ -162,7 +162,7 @@ class FirmwareList:
 
     def load_projects_from_website(self) -> bool:
         try:
-            url = FERMENTRACK_COM_URL + "/api/project_list/all/"
+            url = BREWFLASHER_COM_URL + "/api/project_list/all/"
             response = requests.get(url)
             data = response.json()
         except:
@@ -187,7 +187,7 @@ class FirmwareList:
 
     def load_families_from_website(self) -> bool:
         try:
-            url = FERMENTRACK_COM_URL + "/api/firmware_family_list/"
+            url = BREWFLASHER_COM_URL + "/api/firmware_family_list/"
             response = requests.get(url)
             data = response.json()
         except:
@@ -215,7 +215,7 @@ class FirmwareList:
     def load_firmware_from_website(self) -> bool:
         # This is intended to be run after load_families_from_website
         try:
-            url = FERMENTRACK_COM_URL + "/api/firmware_list/all/"
+            url = BREWFLASHER_COM_URL + "/api/firmware_list/all/"
             response = requests.get(url)
             data = response.json()
         except:

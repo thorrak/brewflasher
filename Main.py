@@ -19,8 +19,8 @@ from esptool import FatalError
 from argparse import Namespace
 
 # Load the import & initialize the firmware_list
-import fermentrack_integration
-firmware_list = fermentrack_integration.FirmwareList()
+import brewflasher_com_integration
+firmware_list = brewflasher_com_integration.FirmwareList()
 
 __version__ = "1.2"
 __flash_help__ = '''
