@@ -113,28 +113,51 @@ class Firmware:
     def download_to_file(self, check_checksum=True, force_download=False):
         # If this is a multi-part firmware (ESP32, with partitions or SPIFFS) then download the additional parts.
         if len(self.download_url_partitions) > 12:
+            print("Downloading partitions file...")
             if not self.download_file(self.full_filepath("partitions"), self.download_url_partitions,
                                       self.checksum_partitions, check_checksum, force_download):
+                print("Error downloading partitions file!")
                 return False
 
         if len(self.download_url_spiffs) > 12 and len(self.spiffs_address) > 2:
+            print("Downloading SPIFFS/LittleFS file...")
             if not self.download_file(self.full_filepath("spiffs"), self.download_url_spiffs,
                                       self.checksum_spiffs, check_checksum, force_download):
+                print("Error downloading SPIFFS/LittleFS file!")
                 return False
 
         if len(self.download_url_bootloader) > 12:
+            print("Downloading bootloader file...")
             if not self.download_file(self.full_filepath("bootloader"), self.download_url_bootloader,
                                       self.checksum_bootloader, check_checksum, force_download):
+                print("Error downloading bootloader file!")
                 return False
 
         if len(self.download_url_otadata) > 12 and len(self.otadata_address) > 2:
+            print("Downloading otadata file...")
             if not self.download_file(self.full_filepath("otadata"), self.download_url_otadata,
                                       self.checksum_otadata, check_checksum, force_download):
+                print("Error downloading otadata file!")
                 return False
 
         # Always download the main firmware
+        print("Downloading main firmware file...")
         return self.download_file(self.full_filepath("firmware"), self.download_url, self.checksum, check_checksum, force_download)
 
+    def pre_flash_web_verify(self, brewflasher_version):
+        """Recheck that the checksum we have cached is still the one that brewflasher.com reports"""
+        request_dict = {
+            'firmware_id': self.id,
+            'flasher': "BrewFlasher",
+            'flasher_version': brewflasher_version
+        }
+        url = BREWFLASHER_COM_URL + "/api/flash_verify/"
+        r = requests.post(url, json=request_dict)
+        response = r.json()
+        if response['status'] == "success":
+            if response['message'] == self.checksum:
+                return True
+        return False
 
 
 class DeviceFamily:
@@ -236,7 +259,7 @@ class FirmwareList:
                         download_url_partitions=row['download_url_partitions'],
                         download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
                         checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
-                        spiffs_address=row['spiffs_address'], project_id=row['project_id'],
+                        spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
                         download_url_bootloader=row['download_url_bootloader'],
                         checksum_bootloader=row['checksum_bootloader'],
                         download_url_otadata=row['download_url_otadata'],

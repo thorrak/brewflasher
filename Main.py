@@ -94,11 +94,17 @@ class FlashingThread(threading.Thread):
                 print("Must select the firmware to flash before flashing.")
                 return
 
+            print("Verifying firmware list is up-to-date before downloading...")
+            if not self._config.firmware_obj.pre_flash_web_verify(brewflasher_version=__version__):
+                print("Firmware list is not up to date. Relaunch BrewFlasher and try again.")
+                return
+
             print("Downloading firmware...")
             if self._config.firmware_obj.download_to_file():
                 print("Downloaded successfully!\n")
             else:
                 print("Error - unable to download firmware.\n")
+                return
 
             if self._config.device_family_string == "ESP32":
                 # This command matches the ESP32 flash options JSON from Fermentrack.com
