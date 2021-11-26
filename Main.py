@@ -176,12 +176,12 @@ class FlashingThread(threading.Thread):
 
             print("Command: esptool.py %s\n" % " ".join(command))
 
-            # try:
-            esptool.main(command)
-            # except:
-            #     print("esptool.py FAILED. Firmware flashing was unsuccessful.")
-            #     print("Try flashing again, but with a slower speed.")
-            #     return
+            try:
+                esptool.main(command)
+            except:
+                print("Firmware flashing FAILED. esptool.py raised an error.")
+                print("Try flashing again, or try flashing with a slower speed.")
+                return
 
             # The last line printed by esptool is "Staying in bootloader." -> some indication that the process is
             # done is needed
