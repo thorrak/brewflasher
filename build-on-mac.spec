@@ -2,7 +2,7 @@
 
 block_cipher = None
 
-a = Analysis(['nodemcu-pyflasher.py'],
+a = Analysis(['Main.py'],
              binaries=None,
              datas=[("images", "images")],
              hiddenimports=[],
@@ -26,10 +26,10 @@ exe = EXE(pyz,
           target_arch='x86_64',
           entitlements_file='Entitlements.plist',
           codesign_identity='Developer ID Application: John Beeler (RAS94LVJ7S)',
-          console=False , icon='images/icon-256.icns')
+          console=False , icon='images/icon-512.icns')
 app = BUNDLE(exe,
              name='BrewFlasher-1.2.app',
-             icon='./images/icon-256.icns',
+             icon='./images/icon-512.icns',
              bundle_identifier='com.brewflasher.macos',
              info_plist={
                'NSPrincipalClass': 'NSApplication',
@@ -39,6 +39,6 @@ app = BUNDLE(exe,
                'CFBundleVersion': '1.2.0',
                'CFBundleShortVersionString': '1.2',
                'CFBundleSignature': 'BFLS',
-               'LSMinimumSystemVersion': '10.0.0'
+               'LSMinimumSystemVersion': '10.4.0'
                },
             )
