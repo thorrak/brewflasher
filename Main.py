@@ -110,7 +110,7 @@ class FlashingThread(threading.Thread):
                 return
 
             if self._config.device_family_string == "ESP32":
-                # This command matches the ESP32 flash options JSON from Fermentrack.com
+                # This command matches the ESP32 flash options JSON from BrewFlasher.com
                 command_extension = ["--chip", "esp32",
                                      "--baud", str(self._config.baud),
                                      "--before", "default_reset", "--after", "hard_reset",

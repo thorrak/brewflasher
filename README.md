@@ -8,7 +8,7 @@ A standalone desktop application for flashing brewing-related firmware to your E
 
 ## About
 BrewFlasher is a standalone desktop application that allows the user to flash specific firmware (upload software) to an 
-ESP32 or ESP8266. It will automatically locate the firmare on the internet, download it, and flash it to your chip with 
+ESP32 or ESP8266. It will automatically locate the firmware on the internet, download it, and flash it to your chip with 
 minimal input required. Simple, fast, and magic.
 
 This project was built as a natural complement to a handful of other projects I either support or collaborate on, where 

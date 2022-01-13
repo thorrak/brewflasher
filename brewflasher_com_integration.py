@@ -184,18 +184,18 @@ class FirmwareList:
         return "Device Families"
 
     def load_projects_from_website(self) -> bool:
-        try:
-            url = BREWFLASHER_COM_URL + "/api/project_list/all/"
-            response = requests.get(url)
-            data = response.json()
-        except:
-            return False
+#        try:
+        url = BREWFLASHER_COM_URL + "/api/project_list/all/"
+        response = requests.get(url)
+        data = response.json()
+    # except:
+    #         return False
 
         if len(data) > 0:
             for row in data:
                 try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
-                    # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
+                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
+                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     newProject = Project(name=row['name'], weight=row['weight'], id=row['id'],
                                          description=row['description'], support_url=row['support_url'],
                                          project_url=row['project_url'], documentation_url=row['documentation_url'],
@@ -206,7 +206,7 @@ class FirmwareList:
                     pass
 
             return True
-        return False  # We didn't get data back from Fermentrack.com, or there was an error
+        return False  # We didn't get data back from Brewflasher.com, or there was an error
 
     def load_families_from_website(self) -> bool:
         try:
@@ -219,8 +219,8 @@ class FirmwareList:
         if len(data) > 0:
             for row in data:
                 try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
-                    # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
+                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
+                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     newFamily = DeviceFamily(name=row['name'], flash_method=row['flash_method'], id=row['id'],
                                              detection_family=row['detection_family'])
                     if newFamily.flash_method == "esptool":  # Only save families that use esptool
@@ -233,7 +233,7 @@ class FirmwareList:
                     pass
 
             return True
-        return False  # We didn't get data back from Fermentrack.com, or there was an error
+        return False  # We didn't get data back from Brewflasher.com, or there was an error
 
     def load_firmware_from_website(self) -> bool:
         # This is intended to be run after load_families_from_website
@@ -248,8 +248,8 @@ class FirmwareList:
             # Then loop through the data we received and recreate it again
             for row in data:
                 try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
-                    # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
+                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
+                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     newFirmware = Firmware(
                         name=row['name'], version=row['version'], family_id=row['family_id'],
                         variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
@@ -275,7 +275,7 @@ class FirmwareList:
                     pass
 
             return True  # Firmware table is updated
-        return False  # We didn't get data back from Fermentrack.com, or there was an error
+        return False  # We didn't get data back from Brewflasher.com, or there was an error
 
     def cleanse_projects(self):
         for this_project_id in list(self.Projects):
