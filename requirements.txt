@@ -1,5 +1,5 @@
 esptool==3.2
 wxPython
 # Previously PyInstaller 3.4 was used - this has security vulnerabilities per GitHub
-PyInstaller>=3.6
+PyInstaller>=4.7
 requests

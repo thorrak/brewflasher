@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <pkg-ref id="com.brewflasher.macos.pkg"/>
+    <options customize="never" require-scripts="false" hostArchitectures="arm64"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.brewflasher.macos.pkg"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.brewflasher.macos.pkg" visible="false">
+        <pkg-ref id="com.brewflasher.macos.pkg"/>
+    </choice>
+    <pkg-ref id="com.brewflasher.macos.pkg" version="1.2.0" onConclusion="none">brewflasher.pkg</pkg-ref>
+</installer-gui-script>
