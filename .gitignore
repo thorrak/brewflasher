@@ -110,3 +110,6 @@ package-lock.json
 notarize.sh
 staple.sh
 
+# Exclude the pyinstaller directory (if it's here)
+pyinstaller/
+

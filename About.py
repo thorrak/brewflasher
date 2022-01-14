@@ -21,7 +21,7 @@ class AboutDlg(wx.Dialog):
 
     <p>Version {1}</p>
 
-    <p>BrewFlasher - &copy; 2019 John Beeler. Licensed under MIT.</p>
+    <p>BrewFlasher - &copy; 2019-2021 John Beeler. Licensed under MIT.</p>
     <p>Based on <a style="color: #004CE5;" href="https://github.com/marcelstoer/nodemcu-pyflasher">NodeMCU PyFlasher</a>
        - &copy; 2019 Marcel St&ouml;r. Licensed under MIT.</p>
 

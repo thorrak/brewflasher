@@ -19,27 +19,27 @@ from esptool import FatalError
 from argparse import Namespace
 
 # Load the import & initialize the firmware_list
-import fermentrack_integration
-firmware_list = fermentrack_integration.FirmwareList()
+import brewflasher_com_integration
+firmware_list = brewflasher_com_integration.FirmwareList()
 
-__version__ = "1.0"
-__flash_help__ = '''
-<p>This setting depends on your device - but in most cases you will want to use DIO.<p>
-<p>
-<ul>
-  <li>Most ESP32 and ESP8266 ESP-12 use DIO.</li>
-  <li>Most ESP8266 ESP-01/07 use QIO.</li>
-  <li>ESP8285 requires DOUT.</li>
-</ul>
-</p>
-<p>
-  For more information, details are found at at <a style="color: #004CE5;"
-        href="https://www.esp32.com/viewtopic.php?p=5523&sid=08ef44e13610ecf2a2a33bb173b0fd5c#p5523">http://bit.ly/2v5Rd32</a>
-  and in the <a style="color: #004CE5;" href="https://github.com/espressif/esptool/#flash-modes">esptool
-  documentation</a>
-
-</p>
-'''
+__version__ = "1.2"
+# __flash_help__ = '''
+# <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
+# <p>
+# <ul>
+#   <li>Most ESP32 and ESP8266 ESP-12 use DIO.</li>
+#   <li>Most ESP8266 ESP-01/07 use QIO.</li>
+#   <li>ESP8285 requires DOUT.</li>
+# </ul>
+# </p>
+# <p>
+#   For more information, details are found at at <a style="color: #004CE5;"
+#         href="https://www.esp32.com/viewtopic.php?p=5523&sid=08ef44e13610ecf2a2a33bb173b0fd5c#p5523">http://bit.ly/2v5Rd32</a>
+#   and in the <a style="color: #004CE5;" href="https://github.com/espressif/esptool/#flash-modes">esptool
+#   documentation</a>
+#
+# </p>
+# '''
 __auto_select__ = "Auto-select"
 __auto_select_explanation__ = "(first port with Espressif device)"
 __supported_baud_rates__ = [9600, 57600, 74880, 115200, 230400, 460800, 921600]
@@ -68,6 +68,9 @@ class RedirectText:
         # noinspection PyStatementEffect
         None
 
+    def isatty(self):
+        return False
+
 # ---------------------------------------------------------------------------
 
 
@@ -94,13 +97,20 @@ class FlashingThread(threading.Thread):
                 print("Must select the firmware to flash before flashing.")
                 return
 
+            print("Verifying firmware list is up-to-date before downloading...")
+            if not self._config.firmware_obj.pre_flash_web_verify(brewflasher_version=__version__):
+                print("Firmware list is not up to date. Relaunch BrewFlasher and try again.")
+                return
+
             print("Downloading firmware...")
             if self._config.firmware_obj.download_to_file():
                 print("Downloaded successfully!\n")
             else:
                 print("Error - unable to download firmware.\n")
+                return
 
             if self._config.device_family_string == "ESP32":
+                # This command matches the ESP32 flash options JSON from BrewFlasher.com
                 command_extension = ["--chip", "esp32",
                                      "--baud", str(self._config.baud),
                                      "--before", "default_reset", "--after", "hard_reset",
@@ -123,7 +133,8 @@ class FlashingThread(threading.Thread):
             else:
                 command_extension = ["--chip", "esp8266",
                                      "write_flash",
-                                     "--flash_mode", self._config.mode, "0x00000",
+                                     # "--flash_mode", self._config.mode,
+                                     "0x00000",
                                      self._config.firmware_obj.full_filepath("firmware")]
 
             # For both ESP32 and ESP8266 we can directly flash an image to SPIFFS.
@@ -158,9 +169,19 @@ class FlashingThread(threading.Thread):
             if self._config.erase_before_flash:
                 command.append("--erase-all")
 
+            # There is a breaking change in esptool 3.0 that changes the flash size from detect to keep. We want to
+            # support "detect" by default.
+            command.append("-fs")
+            command.append("detect")
+
             print("Command: esptool.py %s\n" % " ".join(command))
 
-            esptool.main(command)
+            try:
+                esptool.main(command)
+            except:
+                print("Firmware flashing FAILED. esptool.py raised an error.")
+                print("Try flashing again, or try flashing with a slower speed.")
+                return
 
             # The last line printed by esptool is "Staying in bootloader." -> some indication that the process is
             # done is needed
@@ -180,7 +201,7 @@ class FlashConfig:
     def __init__(self):
         self.baud = 115200
         self.erase_before_flash = False
-        self.mode = "dio"
+        # self.mode = "dio"
         self.firmware_path = None
         # self.port = None
         self.port = __auto_select__
@@ -201,7 +222,7 @@ class FlashConfig:
                 data = json.load(f)
             conf.port = data['port']
             conf.baud = data['baud']
-            conf.mode = data['mode']
+            # conf.mode = data['mode']
             conf.erase_before_flash = data['erase']
         return conf
 
@@ -209,7 +230,7 @@ class FlashConfig:
         data = {
             'port': self.port,
             'baud': self.baud,
-            'mode': self.mode,
+            # 'mode': self.mode,
             'erase': self.erase_before_flash,
         }
         with open(file_path, 'w') as f:
@@ -252,11 +273,11 @@ class NodeMcuFlasher(wx.Frame):
             if radio_button.GetValue():
                 self._config.baud = radio_button.rate
 
-        def on_mode_changed(event):
-            radio_button = event.GetEventObject()
-
-            if radio_button.GetValue():
-                self._config.mode = radio_button.mode
+        # def on_mode_changed(event):
+        #     radio_button = event.GetEventObject()
+        #
+        #     if radio_button.GetValue():
+        #         self._config.mode = radio_button.mode
 
         def on_erase_changed(event):
             radio_button = event.GetEventObject()
@@ -345,7 +366,7 @@ class NodeMcuFlasher(wx.Frame):
         serial_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
         serial_boxsizer.Add(self.choice, 1, wx.EXPAND)
         serial_boxsizer.AddStretchSpacer(0)
-        serial_boxsizer.Add(reload_button, 0, wx.ALIGN_RIGHT, 20)
+        serial_boxsizer.Add(reload_button, 0, 0, 20)
 
         project_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
         project_boxsizer.Add(self.project_choice, 1, wx.EXPAND)
@@ -371,20 +392,21 @@ class NodeMcuFlasher(wx.Frame):
         for idx, rate in enumerate(__supported_baud_rates__):
             add_baud_radio_button(baud_boxsizer, idx, rate)
 
-        flashmode_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
-
-        def add_flash_mode_radio_button(sizer, index, mode, label):
-            style = wx.RB_GROUP if index == 0 else 0
-            radio_button = wx.RadioButton(panel, name="mode-%s" % mode, label="%s" % label, style=style)
-            radio_button.Bind(wx.EVT_RADIOBUTTON, on_mode_changed)
-            radio_button.mode = mode
-            radio_button.SetValue(mode == self._config.mode)
-            sizer.Add(radio_button)
-            sizer.AddSpacer(10)
-
-        add_flash_mode_radio_button(flashmode_boxsizer, 0, "qio", "Quad I/O (QIO)")
-        add_flash_mode_radio_button(flashmode_boxsizer, 1, "dio", "Dual I/O (DIO)")
-        add_flash_mode_radio_button(flashmode_boxsizer, 2, "dout", "Dual Output (DOUT)")
+        # As of esptool 2.0 flash_mode is autodetected from the firmware. We've also always ignored it for ESP32.
+        # flashmode_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
+        #
+        # def add_flash_mode_radio_button(sizer, index, mode, label):
+        #     style = wx.RB_GROUP if index == 0 else 0
+        #     radio_button = wx.RadioButton(panel, name="mode-%s" % mode, label="%s" % label, style=style)
+        #     radio_button.Bind(wx.EVT_RADIOBUTTON, on_mode_changed)
+        #     radio_button.mode = mode
+        #     radio_button.SetValue(mode == self._config.mode)
+        #     sizer.Add(radio_button)
+        #     sizer.AddSpacer(10)
+        #
+        # add_flash_mode_radio_button(flashmode_boxsizer, 0, "qio", "Quad I/O (QIO)")
+        # add_flash_mode_radio_button(flashmode_boxsizer, 1, "dio", "Dual I/O (DIO)")
+        # add_flash_mode_radio_button(flashmode_boxsizer, 2, "dout", "Dual Output (DOUT)")
 
         erase_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
 
@@ -416,26 +438,26 @@ class NodeMcuFlasher(wx.Frame):
         device_family_label = wx.StaticText(panel, label="Device Family ")
         firmware_label = wx.StaticText(panel, label="Firmware ")
         baud_label = wx.StaticText(panel, label="Baud rate ")
-        flashmode_label = wx.StaticText(panel, label="Flash mode ")
+        # flashmode_label = wx.StaticText(panel, label="Flash mode ")
 
-        def on_info_hover(event):
-            from HtmlPopupTransientWindow import HtmlPopupTransientWindow
-            win = HtmlPopupTransientWindow(self, wx.SIMPLE_BORDER, __flash_help__, "#FFB6C1", (410, 140))
+        # def on_info_hover(event):
+        #     from HtmlPopupTransientWindow import HtmlPopupTransientWindow
+        #     win = HtmlPopupTransientWindow(self, wx.SIMPLE_BORDER, __flash_help__, "#FFB6C1", (410, 140))
+        #
+        #     image = event.GetEventObject()
+        #     image_position = image.ClientToScreen((0, 0))
+        #     image_size = image.GetSize()
+        #     win.Position(image_position, (0, image_size[1]))
+        #
+        #     win.Popup()
+        #
+        # icon = wx.StaticBitmap(panel, wx.ID_ANY, images.Info.GetBitmap())
+        # icon.Bind(wx.EVT_MOTION, on_info_hover)
 
-            image = event.GetEventObject()
-            image_position = image.ClientToScreen((0, 0))
-            image_size = image.GetSize()
-            win.Position(image_position, (0, image_size[1]))
-
-            win.Popup()
-
-        icon = wx.StaticBitmap(panel, wx.ID_ANY, images.Info.GetBitmap())
-        icon.Bind(wx.EVT_MOTION, on_info_hover)
-
-        flashmode_label_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
-        flashmode_label_boxsizer.Add(flashmode_label, 1, wx.EXPAND)
-        flashmode_label_boxsizer.AddStretchSpacer(0)
-        flashmode_label_boxsizer.Add(icon, 0, wx.ALIGN_RIGHT, 20)
+        # flashmode_label_boxsizer = wx.BoxSizer(wx.HORIZONTAL)
+        # flashmode_label_boxsizer.Add(flashmode_label, 1, wx.EXPAND)
+        # flashmode_label_boxsizer.AddStretchSpacer(0)
+        # flashmode_label_boxsizer.Add(icon, 0, 0, 20)
 
         erase_label = wx.StaticText(panel, label="Erase flash")
         console_label = wx.StaticText(panel, label="Console")
@@ -446,11 +468,11 @@ class NodeMcuFlasher(wx.Frame):
                     device_family_label, (device_family_boxsizer, 1, wx.EXPAND),
                     firmware_label, (firmware_boxsizer, 1, wx.EXPAND),
                     baud_label, baud_boxsizer,
-                    flashmode_label_boxsizer, flashmode_boxsizer,
+                    # flashmode_label_boxsizer, flashmode_boxsizer,
                     erase_label, erase_boxsizer,
                     (wx.StaticText(panel, label="")), (button, 1, wx.EXPAND),
                     (console_label, 1, wx.EXPAND), (self.console_ctrl, 1, wx.EXPAND)])
-        fgs.AddGrowableRow(8, 1)
+        fgs.AddGrowableRow(7, 1)
         fgs.AddGrowableCol(1, 1)
         hbox.Add(fgs, proportion=2, flag=wx.ALL | wx.EXPAND, border=15)
         panel.SetSizer(hbox)

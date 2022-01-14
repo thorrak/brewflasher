@@ -1,10 +1,13 @@
+from pathlib import Path
+import os.path
 import requests
 import copy
-import os.path, sys
+import sys
 import fhash
 
 
-FERMENTRACK_COM_URL = "http://www.fermentrack.com"
+BREWFLASHER_COM_URL = "https://www.brewflasher.com/firmware"
+MODEL_VERSION = 3
 
 
 class Project:
@@ -26,15 +29,14 @@ class Project:
 
 
 class Firmware:
-    def __init__(self, name="", version="", revision="", family_id=0, variant="", is_fermentrack_supported="",
+    def __init__(self, name="", version="", family_id=0, variant="", is_fermentrack_supported="",
                  in_error="", description="", variant_description="", download_url="", id=0, project_id=0,
-                 project_url="", documentation_url="", weight="", download_url_partitions="",
+                 post_install_instructions="", weight="", download_url_partitions="",
                  download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address="",
                  download_url_bootloader="", checksum_bootloader="",
                  download_url_otadata="", otadata_address="", checksum_otadata=""):
         self.name = name
         self.version = version
-        self.revision = revision
         self.family_id = family_id
         self.variant = variant
         self.is_fermentrack_supported = is_fermentrack_supported
@@ -42,8 +44,7 @@ class Firmware:
         self.description = description
         self.variant_description = variant_description
         self.download_url = download_url
-        self.project_url = project_url
-        self.documentation_url = documentation_url
+        self.post_install_instructions = post_install_instructions
         self.weight = weight
         self.download_url_partitions = download_url_partitions
         self.download_url_spiffs = download_url_spiffs
@@ -64,8 +65,6 @@ class Firmware:
 
         if len(self.version) > 0:
             str_rep += " - v{}".format(self.version)
-        if len(self.revision) > 0:
-            str_rep += " - rev {}".format(self.revision)
         if len(self.variant) > 0:
             str_rep += " - {}".format(self.variant)
         return str_rep
@@ -114,28 +113,51 @@ class Firmware:
     def download_to_file(self, check_checksum=True, force_download=False):
         # If this is a multi-part firmware (ESP32, with partitions or SPIFFS) then download the additional parts.
         if len(self.download_url_partitions) > 12:
+            print("Downloading partitions file...")
             if not self.download_file(self.full_filepath("partitions"), self.download_url_partitions,
                                       self.checksum_partitions, check_checksum, force_download):
+                print("Error downloading partitions file!")
                 return False
 
         if len(self.download_url_spiffs) > 12 and len(self.spiffs_address) > 2:
+            print("Downloading SPIFFS/LittleFS file...")
             if not self.download_file(self.full_filepath("spiffs"), self.download_url_spiffs,
                                       self.checksum_spiffs, check_checksum, force_download):
+                print("Error downloading SPIFFS/LittleFS file!")
                 return False
 
         if len(self.download_url_bootloader) > 12:
+            print("Downloading bootloader file...")
             if not self.download_file(self.full_filepath("bootloader"), self.download_url_bootloader,
                                       self.checksum_bootloader, check_checksum, force_download):
+                print("Error downloading bootloader file!")
                 return False
 
         if len(self.download_url_otadata) > 12 and len(self.otadata_address) > 2:
+            print("Downloading otadata file...")
             if not self.download_file(self.full_filepath("otadata"), self.download_url_otadata,
                                       self.checksum_otadata, check_checksum, force_download):
+                print("Error downloading otadata file!")
                 return False
 
         # Always download the main firmware
+        print("Downloading main firmware file...")
         return self.download_file(self.full_filepath("firmware"), self.download_url, self.checksum, check_checksum, force_download)
 
+    def pre_flash_web_verify(self, brewflasher_version):
+        """Recheck that the checksum we have cached is still the one that brewflasher.com reports"""
+        request_dict = {
+            'firmware_id': self.id,
+            'flasher': "BrewFlasher",
+            'flasher_version': brewflasher_version
+        }
+        url = BREWFLASHER_COM_URL + "/api/flash_verify/"
+        r = requests.post(url, json=request_dict)
+        response = r.json()
+        if response['status'] == "success":
+            if response['message'] == self.checksum:
+                return True
+        return False
 
 
 class DeviceFamily:
@@ -162,32 +184,33 @@ class FirmwareList:
         return "Device Families"
 
     def load_projects_from_website(self) -> bool:
-        try:
-            url = FERMENTRACK_COM_URL + "/api/project_list/all/"
-            response = requests.get(url)
-            data = response.json()
-        except:
-            return False
+#        try:
+        url = BREWFLASHER_COM_URL + "/api/project_list/all/"
+        response = requests.get(url)
+        data = response.json()
+    # except:
+    #         return False
 
         if len(data) > 0:
             for row in data:
                 try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
-                    # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
+                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
+                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     newProject = Project(name=row['name'], weight=row['weight'], id=row['id'],
                                          description=row['description'], support_url=row['support_url'],
                                          project_url=row['project_url'], documentation_url=row['documentation_url'],
                                          show=row['show_in_standalone_flasher'])
                     self.Projects[row['id']] = copy.deepcopy(newProject)
                 except:
+                    # TODO - Display an error message
                     pass
 
             return True
-        return False  # We didn't get data back from Fermentrack.com, or there was an error
+        return False  # We didn't get data back from Brewflasher.com, or there was an error
 
     def load_families_from_website(self) -> bool:
         try:
-            url = FERMENTRACK_COM_URL + "/api/firmware_family_list/"
+            url = BREWFLASHER_COM_URL + "/api/firmware_family_list/"
             response = requests.get(url)
             data = response.json()
         except:
@@ -196,8 +219,8 @@ class FirmwareList:
         if len(data) > 0:
             for row in data:
                 try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
-                    # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
+                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
+                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     newFamily = DeviceFamily(name=row['name'], flash_method=row['flash_method'], id=row['id'],
                                              detection_family=row['detection_family'])
                     if newFamily.flash_method == "esptool":  # Only save families that use esptool
@@ -206,15 +229,16 @@ class FirmwareList:
                         for this_project in self.Projects:
                             self.Projects[this_project].device_families[newFamily.id] = copy.deepcopy(newFamily)
                 except:
+                    # TODO - Display an error message
                     pass
 
             return True
-        return False  # We didn't get data back from Fermentrack.com, or there was an error
+        return False  # We didn't get data back from Brewflasher.com, or there was an error
 
     def load_firmware_from_website(self) -> bool:
         # This is intended to be run after load_families_from_website
         try:
-            url = FERMENTRACK_COM_URL + "/api/firmware_list/all/"
+            url = BREWFLASHER_COM_URL + "/api/firmware_list/all/"
             response = requests.get(url)
             data = response.json()
         except:
@@ -224,18 +248,18 @@ class FirmwareList:
             # Then loop through the data we received and recreate it again
             for row in data:
                 try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of Fermentrack
-                    # is slightly behind what is available at Fermentrack.com (eg - if there are new device families)
+                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
+                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     newFirmware = Firmware(
-                        name=row['name'], version=row['version'], revision=row['revision'], family_id=row['family_id'],
+                        name=row['name'], version=row['version'], family_id=row['family_id'],
                         variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
                         in_error=row['in_error'], description=row['description'],
                         variant_description=row['variant_description'], download_url=row['download_url'],
-                        project_url=row['project_url'], documentation_url=row['documentation_url'], weight=row['weight'],
+                        post_install_instructions=row['post_install_instructions'], weight=row['weight'],
                         download_url_partitions=row['download_url_partitions'],
                         download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
                         checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
-                        spiffs_address=row['spiffs_address'], project_id=row['project_id'],
+                        spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
                         download_url_bootloader=row['download_url_bootloader'],
                         checksum_bootloader=row['checksum_bootloader'],
                         download_url_otadata=row['download_url_otadata'],
@@ -247,10 +271,11 @@ class FirmwareList:
                         self.Projects[newFirmware.project_id].device_families[newFirmware.family_id].firmware.append(
                             newFirmware)
                 except:
+                    # TODO - Display an error message
                     pass
 
             return True  # Firmware table is updated
-        return False  # We didn't get data back from Fermentrack.com, or there was an error
+        return False  # We didn't get data back from Brewflasher.com, or there was an error
 
     def cleanse_projects(self):
         for this_project_id in list(self.Projects):
