@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #rm -fr build dist
-#VERSION=1.2
+#VERSION=1.3
 #NAME=BrewFlasher
 
 pyinstaller --log-level=INFO \
