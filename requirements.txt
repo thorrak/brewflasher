@@ -1,6 +1,8 @@
-esptool==4.1
+# esptool==4.1
+# We need to use my version of esptool, as the "esptool.py" utility file creates issues with PyInstaller
+git+https://github.com/thorrak/esptool.git@v41_noutil
 wxPython
 # Previously PyInstaller 3.4 was used - this has security vulnerabilities per GitHub
 PyInstaller==5.1
-requests==2.28.0
-pyserial
+requests==2.28.1
+pyserial==3.5
