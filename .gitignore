@@ -114,4 +114,4 @@ staple.sh
 pyinstaller/
 
 dist-pkg/
-/brewflasher.pkg
+/*.pkg

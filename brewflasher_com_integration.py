@@ -203,7 +203,9 @@ class FirmwareList:
                                          show=row['show_in_standalone_flasher'])
                     self.Projects[row['id']] = copy.deepcopy(newProject)
                 except:
-                    # TODO - Display an error message
+                    print("\nUnable to load projects from BrewFlasher.com.")
+                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
+                          "to receive this error, please check that you have the latest version of BrewFlasher.")
                     pass
 
             return True
@@ -231,7 +233,9 @@ class FirmwareList:
                         for this_project in self.Projects:
                             self.Projects[this_project].device_families[new_family.id] = copy.deepcopy(new_family)
                 except:
-                    # TODO - Display an error message
+                    print("\nUnable to load device families from BrewFlasher.com.")
+                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
+                          "to receive this error, please check that you have the latest version of BrewFlasher.")
                     pass
 
             return True
@@ -273,7 +277,9 @@ class FirmwareList:
                         self.Projects[newFirmware.project_id].device_families[newFirmware.family_id].firmware.append(
                             newFirmware)
                 except:
-                    # TODO - Display an error message
+                    print("\nUnable to load firmware list from BrewFlasher.com.")
+                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
+                          "to receive this error, please check that you have the latest version of BrewFlasher.")
                     pass
 
             return True  # Firmware table is updated

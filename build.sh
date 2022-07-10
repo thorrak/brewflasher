@@ -3,9 +3,9 @@
 #VERSION=1.3
 #NAME=BrewFlasher
 
-./venv/bin/activate
+source ./venv/bin/activate
 # NOTE -- YOU NEED TO RUN THE BELOW COMMAND MANUALLY!
-pyinstaller --log-level=INFO \
+./venv/bin/pyinstaller --log-level=INFO \
             --noconfirm \
             build-on-mac-m1.spec
 

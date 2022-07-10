@@ -231,8 +231,8 @@ class FlashingThread(threading.Thread):
             print("Firmware flashing FAILED. esptool.py raised an error.\n")
             print("Try flashing again, or try flashing with a slower speed.\n")
             if self._config.device_family_1200_bps:
-                # TODO - Add instructions here
-                print("\nAlternatively, you may need to manually set the device into 'flash' mode.")
+                print("\nAlternatively, you may need to manually set the device into 'flash' mode.\nFor instructions "
+                      "on how to do this, check this website:\nhttp://www.brewflasher.com/manualflash/")
             return
 
         # The last line printed by esptool is "Staying in bootloader." -> some indication that the process is
