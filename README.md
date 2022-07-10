@@ -32,6 +32,8 @@ or ESP8266. Those projects include:
 - iSpindHub
 - SBL4TILT
 - GravityMon
+- FermWatch
+- BrewUNO
 
 An up-to-date list of supported firmware can be found at the [BrewFlasher](https://www.brewflasher.com/about/supported_projects/) website.
 
@@ -61,7 +63,7 @@ are likely similar (though the "0" button may be labeled something else, like "b
 
 ## Background & Development
 BrewFlasher is based *heavily* on the [NodeMCU PyFlasher](https://github.com/marcelstoer/nodemcu-pyflasher) project. In 
-comparison to that project, BrewFlasher adds explicit ESP32 support as well as a workflow to automate selecting and
+comparison to that project, BrewFlasher adds explicit ESP32 & ESP32-S2 support as well as a workflow to automate selecting and
 downloading brewing-related firmware to flash. The firmware selection is taken from a curated list maintained 
 behind-the-scenes on BrewFlasher.com.
 
