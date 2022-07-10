@@ -3,6 +3,6 @@
 git+https://github.com/thorrak/esptool.git@v41_noutil
 wxPython
 # Previously PyInstaller 3.4 was used - this has security vulnerabilities per GitHub
-PyInstaller==5.1
+PyInstaller==5.2
 requests==2.28.1
 pyserial==3.5
