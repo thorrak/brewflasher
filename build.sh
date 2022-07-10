@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 #rm -fr build dist
-#VERSION=1.2
+#VERSION=1.3
 #NAME=BrewFlasher
 
-pyinstaller --log-level=INFO \
+source ./venv/bin/activate
+# NOTE -- YOU NEED TO RUN THE BELOW COMMAND MANUALLY!
+./venv/bin/pyinstaller --log-level=INFO \
             --noconfirm \
             build-on-mac-m1.spec
 

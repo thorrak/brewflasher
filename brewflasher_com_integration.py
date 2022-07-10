@@ -161,12 +161,13 @@ class Firmware:
 
 
 class DeviceFamily:
-    def __init__(self, name="", flash_method="", id=0, detection_family=""):
+    def __init__(self, name="", flash_method="", id=0, detection_family="", use_1200_bps_touch=False):
         self.name = name
         self.flash_method = flash_method
         self.detection_family = detection_family
         self.id = id
         self.firmware = []
+        self.use_1200_bps_touch = use_1200_bps_touch
 
     def __str__(self):
         return self.name
@@ -202,7 +203,9 @@ class FirmwareList:
                                          show=row['show_in_standalone_flasher'])
                     self.Projects[row['id']] = copy.deepcopy(newProject)
                 except:
-                    # TODO - Display an error message
+                    print("\nUnable to load projects from BrewFlasher.com.")
+                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
+                          "to receive this error, please check that you have the latest version of BrewFlasher.")
                     pass
 
             return True
@@ -221,15 +224,18 @@ class FirmwareList:
                 try:
                     # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
                     # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
-                    newFamily = DeviceFamily(name=row['name'], flash_method=row['flash_method'], id=row['id'],
-                                             detection_family=row['detection_family'])
-                    if newFamily.flash_method == "esptool":  # Only save families that use esptool
-                        self.DeviceFamilies[newFamily.id] = copy.deepcopy(newFamily)
-                        self.valid_family_ids.append(newFamily.id)
+                    new_family = DeviceFamily(name=row['name'], flash_method=row['flash_method'], id=row['id'],
+                                              detection_family=row['detection_family'],
+                                              use_1200_bps_touch=row['use_1200_bps_touch'])
+                    if new_family.flash_method == "esptool":  # Only save families that use esptool
+                        self.DeviceFamilies[new_family.id] = copy.deepcopy(new_family)
+                        self.valid_family_ids.append(new_family.id)
                         for this_project in self.Projects:
-                            self.Projects[this_project].device_families[newFamily.id] = copy.deepcopy(newFamily)
+                            self.Projects[this_project].device_families[new_family.id] = copy.deepcopy(new_family)
                 except:
-                    # TODO - Display an error message
+                    print("\nUnable to load device families from BrewFlasher.com.")
+                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
+                          "to receive this error, please check that you have the latest version of BrewFlasher.")
                     pass
 
             return True
@@ -271,7 +277,9 @@ class FirmwareList:
                         self.Projects[newFirmware.project_id].device_families[newFirmware.family_id].firmware.append(
                             newFirmware)
                 except:
-                    # TODO - Display an error message
+                    print("\nUnable to load firmware list from BrewFlasher.com.")
+                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
+                          "to receive this error, please check that you have the latest version of BrewFlasher.")
                     pass
 
             return True  # Firmware table is updated

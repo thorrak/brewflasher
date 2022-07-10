@@ -13,20 +13,21 @@ REM  I'm assuming Python 3.9 (since that's what I have) installed for the local 
 
 REM  First, we'll create the 64 bit version
 REM  Delete any previous versions
-del "dist\BrewFlasher-1.2.exe"
-del "dist\BrewFlasher-1.2 x64.exe"
+del "dist\BrewFlasher-1.3.exe"
+del "dist\BrewFlasher-1.3 x64.exe"
 REM  Make sure packages for the 64 bit version are up-to-date
-C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python39\Scripts\pip.exe" install --upgrade -r requirements.txt
+REM "Scripts\pip.exe" install --upgrade -r requirements.txt
 REM  And then, run pyinstaller
-"C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python39\Scripts\pyinstaller.exe" --log-level=DEBUG --noconfirm build-on-win.spec
+REM "C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python39\Scripts\pyinstaller.exe" --log-level=DEBUG --noconfirm build-on-win.spec
+".\venv64\Scripts\pyinstaller.exe" --log-level=DEBUG --noconfirm build-on-win.spec
 REM Rename the file to x64
-move "dist\BrewFlasher-1.0.exe" "dist\BrewFlasher-1.0 x64.exe"
+move "dist\BrewFlasher-1.3.exe" "dist\BrewFlasher-1.3 x64.exe"
 
 
 REM  Next, we'll create the 32 bit version.
 REM  Delete any previous versions
-REM del "dist\BrewFlasher-1.2.exe"
-REM del "dist\BrewFlasher-1.2 x32.exe"
+REM del "dist\BrewFlasher-1.3.exe"
+REM del "dist\BrewFlasher-1.3 x32.exe"
 REM  Make sure packages for the 32 bit version are up-to-date
 REM "C:\Users\%USERNAME%\AppData\Local\Programs\Python\Python37-32\Scripts\pip.exe" install --upgrade -r requirements.txt
 REM  And then, we'll actually run pyinstaller
