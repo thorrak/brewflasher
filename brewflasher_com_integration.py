@@ -32,9 +32,7 @@ class Firmware:
     def __init__(self, name="", version="", family_id=0, variant="", is_fermentrack_supported="",
                  in_error="", description="", variant_description="", download_url="", id=0, project_id=0,
                  post_install_instructions="", weight="", download_url_partitions="",
-                 download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address="",
-                 download_url_bootloader="", checksum_bootloader="",
-                 download_url_otadata="", otadata_address="", checksum_otadata=""):
+                 download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address=""):
         self.name = name
         self.version = version
         self.family_id = family_id
@@ -52,11 +50,6 @@ class Firmware:
         self.checksum_partitions = checksum_partitions
         self.checksum_spiffs = checksum_spiffs
         self.spiffs_address = spiffs_address
-        self.download_url_bootloader = download_url_bootloader
-        self.checksum_bootloader = checksum_bootloader
-        self.download_url_otadata = download_url_otadata
-        self.otadata_address = otadata_address
-        self.checksum_otadata = checksum_otadata
         self.id = id
         self.project_id = project_id
 
@@ -110,7 +103,7 @@ class Firmware:
             cur_filepath = os.path.dirname(os.path.realpath(__file__))
         return os.path.join(cur_filepath, bintype + ".bin")
 
-    def download_to_file(self, check_checksum=True, force_download=False):
+    def download_to_file(self, device_family, check_checksum=True, force_download=False):
         # If this is a multi-part firmware (ESP32, with partitions or SPIFFS) then download the additional parts.
         if len(self.download_url_partitions) > 12:
             print("Downloading partitions file...")
@@ -126,17 +119,17 @@ class Firmware:
                 print("Error downloading SPIFFS/LittleFS file!")
                 return False
 
-        if len(self.download_url_bootloader) > 12:
+        if len(device_family.download_url_bootloader) > 12:
             print("Downloading bootloader file...")
-            if not self.download_file(self.full_filepath("bootloader"), self.download_url_bootloader,
-                                      self.checksum_bootloader, check_checksum, force_download):
+            if not self.download_file(self.full_filepath("bootloader"), device_family.download_url_bootloader,
+                                      device_family.checksum_bootloader, check_checksum, force_download):
                 print("Error downloading bootloader file!")
                 return False
 
-        if len(self.download_url_otadata) > 12 and len(self.otadata_address) > 2:
+        if len(device_family.download_url_otadata) > 12 and len(device_family.otadata_address) > 2:
             print("Downloading otadata file...")
-            if not self.download_file(self.full_filepath("otadata"), self.download_url_otadata,
-                                      self.checksum_otadata, check_checksum, force_download):
+            if not self.download_file(self.full_filepath("otadata"), device_family.download_url_otadata,
+                                      device_family.checksum_otadata, check_checksum, force_download):
                 print("Error downloading otadata file!")
                 return False
 
@@ -161,13 +154,20 @@ class Firmware:
 
 
 class DeviceFamily:
-    def __init__(self, name="", flash_method="", id=0, detection_family="", use_1200_bps_touch=False):
+    def __init__(self, name="", flash_method="", id=0, detection_family="", use_1200_bps_touch=False,
+                 download_url_bootloader="", download_url_otadata="", otadata_address="", checksum_bootloader="",
+                 checksum_otadata=""):
         self.name = name
         self.flash_method = flash_method
         self.detection_family = detection_family
         self.id = id
         self.firmware = []
         self.use_1200_bps_touch = use_1200_bps_touch
+        self.download_url_bootloader = download_url_bootloader
+        self.download_url_otadata = download_url_otadata
+        self.otadata_address = otadata_address
+        self.checksum_bootloader = checksum_bootloader
+        self.checksum_otadata = checksum_otadata
 
     def __str__(self):
         return self.name
@@ -185,12 +185,9 @@ class FirmwareList:
         return "Device Families"
 
     def load_projects_from_website(self) -> bool:
-#        try:
         url = BREWFLASHER_COM_URL + "/api/project_list/all/"
         response = requests.get(url)
         data = response.json()
-    # except:
-    #         return False
 
         if len(data) > 0:
             for row in data:
@@ -226,6 +223,11 @@ class FirmwareList:
                     # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
                     new_family = DeviceFamily(name=row['name'], flash_method=row['flash_method'], id=row['id'],
                                               detection_family=row['detection_family'],
+                                              download_url_bootloader=row['download_url_bootloader'],
+                                              download_url_otadata=row['download_url_otadata'],
+                                              otadata_address=row['otadata_address'],
+                                              checksum_bootloader=row['checksum_bootloader'],
+                                              checksum_otadata=row['checksum_otadata'],
                                               use_1200_bps_touch=row['use_1200_bps_touch'])
                     if new_family.flash_method == "esptool":  # Only save families that use esptool
                         self.DeviceFamilies[new_family.id] = copy.deepcopy(new_family)
@@ -266,10 +268,6 @@ class FirmwareList:
                         download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
                         checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
                         spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
-                        download_url_bootloader=row['download_url_bootloader'],
-                        checksum_bootloader=row['checksum_bootloader'],
-                        download_url_otadata=row['download_url_otadata'],
-                        otadata_address=row['otadata_address'], checksum_otadata=row['checksum_otadata'],
                     )
                     if newFirmware.family_id in self.valid_family_ids:  # The firmware is for an ESP of some sort
                         # Add the firmware to the appropriate DeviceFamily's list
