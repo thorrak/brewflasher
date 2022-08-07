@@ -24,7 +24,7 @@ from argparse import Namespace
 import brewflasher_com_integration
 firmware_list = brewflasher_com_integration.FirmwareList()
 
-__version__ = "1.3"
+__version__ = "1.4"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 # <p>
@@ -104,7 +104,8 @@ class FlashingThread(threading.Thread):
             return
 
         print("Downloading firmware...")
-        if self._config.firmware_obj.download_to_file():
+        device_family = firmware_list.DeviceFamilies[self._config.firmware_obj.family_id]
+        if self._config.firmware_obj.download_to_file(device_family=device_family):
             print("Downloaded successfully!\n")
         else:
             print("Error - unable to download firmware.\n")
@@ -140,8 +141,8 @@ class FlashingThread(threading.Thread):
                 command_extension.append(self._config.firmware_obj.full_filepath("partitions"))
 
             # For now, I'm assuming bootloader flashing is ESP32 only
-            if len(self._config.firmware_obj.download_url_bootloader) > 0 and \
-                    len(self._config.firmware_obj.checksum_bootloader) > 0:
+            if len(device_family.download_url_bootloader) > 0 and \
+                    len(device_family.checksum_bootloader) > 0:
                 command_extension.append("0x1000")
                 command_extension.append(self._config.firmware_obj.full_filepath("bootloader"))
 
@@ -164,11 +165,11 @@ class FlashingThread(threading.Thread):
             command_extension.append(self._config.firmware_obj.full_filepath("spiffs"))
 
         # For both ESP32 and ESP8266 we can directly flash an image to the otadata section
-        if len(self._config.firmware_obj.download_url_otadata) > 0 and \
-                len(self._config.firmware_obj.checksum_otadata) > 0 and \
-                len(self._config.firmware_obj.otadata_address) > 2:
+        if len(device_family.download_url_otadata) > 0 and \
+                len(device_family.checksum_otadata) > 0 and \
+                len(device_family.otadata_address) > 2:
             # We need to flash the otadata section. The location is dependent on the partition scheme
-            command_extension.append(self._config.firmware_obj.otadata_address)
+            command_extension.append(device_family.otadata_address)
             command_extension.append(self._config.firmware_obj.full_filepath("otadata"))
 
         if not self._config.port.startswith(__auto_select__):
@@ -270,7 +271,7 @@ class FlashConfig:
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 data = json.load(f)
-            conf.port = data['port']
+            # conf.port = data['port']
             conf.baud = data['baud']
             # conf.mode = data['mode']
             conf.erase_before_flash = data['erase']
