@@ -43,8 +43,23 @@ If you are looking to flash generic firmware, I recommend the [NodeMCU PyFlasher
 
 
 ## Installation
-BrewFlasher doesn't have to be installed; just double-click it and it'll start. BrewFlasher is available for both MacOS
-and Windows.
+
+### MacOS and Windows releases
+
+Download the latest [release](https://github.com/thorrak/brewflasher/releases). BrewFlasher doesn't have to be installed; just double-click it and it'll start.
+
+### Running from python source on Linux
+
+You can run BrewFlasher on Linux as follows:
+
+    git clone git@github.com:thorrak/brewflasher.git; cd brewflasher
+    pip install -r requirements.txt # you may need to e.g. `apt install libgtk-3-dev` for wxPython
+    python Main.py
+
+The [esptool.py](https://docs.espressif.com/projects/esptool/en/latest/esp32/index.html) utility may require that your user can access e.g. `/dev/ttyUSB0`:
+
+    sudo usermod -a -G dialout
+    su - $USER # to pick-up the new group in the shell
 
 ## Manually toggling "Flash" Mode
 
