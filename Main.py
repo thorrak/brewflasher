@@ -111,7 +111,8 @@ class FlashingThread(threading.Thread):
             print("Error - unable to download firmware.\n")
             return
 
-        if self._config.device_family_string == "ESP32" or self._config.device_family_string == "ESP32-S2":
+        if self._config.device_family_string == "ESP32" or self._config.device_family_string == "ESP32-S2" or \
+                self._config.device_family_string == "ESP32-C3":
             if self._config.device_family_string == "ESP32":
                 # This command matches the ESP32 flash options JSON from BrewFlasher.com
                 command_extension = ["--chip", "esp32",
@@ -122,6 +123,14 @@ class FlashingThread(threading.Thread):
             elif self._config.device_family_string == "ESP32-S2":
                 # This command matches the ESP32-S2 flash options JSON from BrewFlasher.com
                 command_extension = ["--chip", "esp32s2",
+                                     "--baud", str(self._config.baud),
+                                     "--before", "default_reset", "--after", "hard_reset",
+                                     "write_flash", "-z", "--flash_mode", "dio", "--flash_freq", "80m",
+                                     "0x10000",
+                                     self._config.firmware_obj.full_filepath("firmware")]
+            elif self._config.device_family_string == "ESP32-C3":
+                # This command matches the ESP32-C3 flash options JSON from BrewFlasher.com
+                command_extension = ["--chip", "esp32c3",
                                      "--baud", str(self._config.baud),
                                      "--before", "default_reset", "--after", "hard_reset",
                                      "write_flash", "-z", "--flash_mode", "dio", "--flash_freq", "80m",
