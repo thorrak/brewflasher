@@ -24,7 +24,7 @@ from argparse import Namespace
 import brewflasher_com_integration
 firmware_list = brewflasher_com_integration.FirmwareList()
 
-__version__ = "1.4"
+__version__ = "1.5"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 # <p>
