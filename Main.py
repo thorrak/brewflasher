@@ -152,7 +152,10 @@ class FlashingThread(threading.Thread):
             # For now, I'm assuming bootloader flashing is ESP32 only
             if len(device_family.download_url_bootloader) > 0 and \
                     len(device_family.checksum_bootloader) > 0:
-                command_extension.append("0x1000")
+                if self._config.device_family_string == "ESP32-C3":
+                    command_extension.append("0x0")
+                else:
+                    command_extension.append("0x1000")
                 command_extension.append(self._config.firmware_obj.full_filepath("bootloader"))
 
         elif self._config.device_family_string == "ESP8266":
