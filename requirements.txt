@@ -4,5 +4,5 @@ esptool==3.3.2
 wxPython
 # Previously PyInstaller 3.4 was used - this has security vulnerabilities per GitHub
 PyInstaller==5.2
-requests==2.28.1
+requests==2.31.0
 pyserial==3.5
