@@ -57,7 +57,7 @@ class Firmware:
         str_rep = self.name
 
         if len(self.version) > 0:
-            str_rep += " - v{}".format(self.version)
+            str_rep += " - {}".format(self.version)
         if len(self.variant) > 0:
             str_rep += " - {}".format(self.variant)
         return str_rep
