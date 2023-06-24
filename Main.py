@@ -19,12 +19,31 @@ from esptool import ESPLoader
 from esptool import NotImplementedInROMError
 from esptool import FatalError
 from argparse import Namespace
+import gettext
 
 # Load the import & initialize the firmware_list
 import brewflasher_com_integration
 firmware_list = brewflasher_com_integration.FirmwareList()
 
-__version__ = "1.5"
+import locale
+
+def get_language_code():
+    # getdefaultlocale returns a tuple where first element is 'language_encoding'
+    lang_encoding = locale.getdefaultlocale()
+
+    if lang_encoding is not None and lang_encoding[0] is not None:
+        # The language code is the first two characters of the locale string
+        return lang_encoding[0][0:2]
+    else:
+        return None
+
+# Bundle_dir makes sure this works when frozen with PyInstaller
+bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__))) # get the bundle dir if bundled or simply the __file__ dir if not bundled
+localedir = os.path.abspath(os.path.join(bundle_dir, 'locales'))
+translate = gettext.translation('brewflasher', localedir, languages=[get_language_code()], fallback=False)
+_ = translate.gettext
+
+__version__ = "1.5.1"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 # <p>
@@ -42,8 +61,8 @@ __version__ = "1.5"
 #
 # </p>
 # '''
-__auto_select__ = "Auto-select"
-__auto_select_explanation__ = "(first port with Espressif device)"
+__auto_select__ = _("Auto-select")
+__auto_select_explanation__ = _("(first port with Espressif device)")
 __supported_baud_rates__ = [9600, 57600, 74880, 115200, 230400, 460800, 921600]
 
 # ---------------------------------------------------------------------------
@@ -89,26 +108,26 @@ class FlashingThread(threading.Thread):
 
         # Fermentrack-specific config options
         if self._config.project_string == "" or  self._config.project_id is None:
-            print("Must select the project to flash before flashing.")
+            print(_("Must select the project, device family, and firmware to flash before flashing."))
             return
         if self._config.device_family_string == "" or self._config.device_family_id is None:
-            print("Must select the device family being flashed before flashing.")
+            print(_("Must select the project, device family, and firmware to flash before flashing."))
             return
         if self._config.firmware_string == "" or self._config.firmware_obj is None:
-            print("Must select the firmware to flash before flashing.")
+            print(_("Must select the project, device family, and firmware to flash before flashing."))
             return
 
-        print("Verifying firmware list is up-to-date before downloading...")
+        print(_("Verifying firmware list is up-to-date before downloading..."))
         if not self._config.firmware_obj.pre_flash_web_verify(brewflasher_version=__version__):
-            print("Firmware list is not up to date. Relaunch BrewFlasher and try again.")
+            print(_("Firmware list is not up to date.") + " " + _("Relaunch BrewFlasher and try again."))
             return
 
-        print("Downloading firmware...")
+        print(_("Downloading firmware..."))
         device_family = firmware_list.DeviceFamilies[self._config.firmware_obj.family_id]
         if self._config.firmware_obj.download_to_file(device_family=device_family):
-            print("Downloaded successfully!\n")
+            print(_("Downloaded successfully!\n"))
         else:
-            print("Error - unable to download firmware.\n")
+            print(_("Error - unable to download firmware.\n"))
             return
 
         if self._config.device_family_string == "ESP32" or self._config.device_family_string == "ESP32-S2" or \
@@ -137,9 +156,7 @@ class FlashingThread(threading.Thread):
                                      "0x10000",
                                      self._config.firmware_obj.full_filepath("firmware")]
             else:
-                print("Error - Improperly implemented device family. Update BrewFlasher -- if the error persists, "
-                      "Post an issue on GitHub for this, and specify the device family that you are attempting to "
-                      "flash.")
+                print(_("Invalid device family detected.") + " " + _("Relaunch BrewFlasher and try again."))
                 return
 
             # For the ESP32, we can flash a custom partition table if we need it. If this firmware template involves
@@ -165,7 +182,7 @@ class FlashingThread(threading.Thread):
                                  "0x00000",
                                  self._config.firmware_obj.full_filepath("firmware")]
         else:
-            print("Error - unsupported device family. Try updating BrewFlasher.\n")
+            print(_("Invalid device family detected.") + " " + _("Relaunch BrewFlasher and try again."))
             return
 
         # For both ESP32 and ESP8266 we can directly flash an image to SPIFFS/LittleFS
@@ -189,8 +206,8 @@ class FlashingThread(threading.Thread):
             command.append(self._config.port)
         elif self._config.device_family_1200_bps:
             # For some reason, this code never executes (at least on Mac OS)
-            print("ERROR - Cannot automatically select the serial port for this device family. Please explicitly "
-                  "select the correct device to continue.")
+            print(_("ERROR - Cannot automatically select the serial port for this device family. Please explicitly "
+                  "select the correct device to continue."))
             return
 
         # command.extend(["--baud", str(self._config.baud),
@@ -214,7 +231,7 @@ class FlashingThread(threading.Thread):
         if self._config.device_family_1200_bps:
             try:
                 sleep(0.1)
-                print("Performing 1200 bps touch")
+                print(_("Performing 1200 bps touch"))
                 sleep(0.1)
                 ser = serial.Serial(self._config.port, baudrate=1200, timeout=5, write_timeout=0)
                 sleep(1.5)
@@ -224,11 +241,14 @@ class FlashingThread(threading.Thread):
                 # sleep(0.1)
                 # self._parent.report_error(e.strerror)
                 sleep(0.1)
-                print("...unable to perform 1200bps touch.")
+                print(_("...unable to perform 1200bps touch."))
 
-                print("\nMake sure you have selected the correct serial port (unfortunately,")
-                print("auto-select will not work for this chip) and try again.")
-                print("\nAlternatively, you may need to manually set the device into 'flash' mode.")
+                print("")
+                print(_("Make sure you have selected the correct serial port (auto-select will not work for this chip) and try again."))
+                print("")
+                print(_("Alternatively, you may need to manually set the device into 'flash' mode."))
+                print("")
+                print(_("For instructions on how to do this, check this website:\nhttp://www.brewflasher.com/manualflash/"))
                 raise e
 
         print("Command: esptool.py %s\n" % " ".join(command))
@@ -241,17 +261,21 @@ class FlashingThread(threading.Thread):
             raise e
         except:
             sleep(0.1)
-            print("Firmware flashing FAILED. esptool.py raised an error.\n")
-            print("Try flashing again, or try flashing with a slower speed.\n")
+            print(_("Firmware flashing FAILED. esptool.py raised an error."))
+            print("")
+            print(_("Try flashing again, or try flashing with a slower speed."))
+            print("")
             if self._config.device_family_1200_bps:
-                print("\nAlternatively, you may need to manually set the device into 'flash' mode.\nFor instructions "
-                      "on how to do this, check this website:\nhttp://www.brewflasher.com/manualflash/")
+                print("")
+                print(_("Alternatively, you may need to manually set the device into 'flash' mode."))
+                print("")
+                print(_("For instructions on how to do this, check this website:\nhttp://www.brewflasher.com/manualflash/"))
             return
 
         # The last line printed by esptool is "Staying in bootloader." -> some indication that the process is
         # done is needed
-        print("\nFirmware successfully flashed. Unplug/replug or reset device \nto switch back to normal boot "
-              "mode.")
+        print("")
+        print(_("Firmware successfully flashed. Reset device to switch back to normal boot mode."))
 
 
 # ---------------------------------------------------------------------------
@@ -322,9 +346,9 @@ class NodeMcuFlasher(wx.Frame):
 
         self.Centre(wx.BOTH)
         self.Show(True)
-        print("Connect your device")
-        print("\nIf you chose the serial port auto-select feature you might need to ")
-        print("turn off Bluetooth")
+        print(_("Connect your device"))
+        print("")
+        print(_("If you chose the serial port auto-select feature you might need to turn off Bluetooth"))
 
     def _init_ui(self):
         def on_reload(event):
@@ -417,7 +441,7 @@ class NodeMcuFlasher(wx.Frame):
         reload_button = wx.BitmapButton(panel, id=wx.ID_ANY, bitmap=bmp,
                                         size=(bmp.GetWidth() + 7, bmp.GetHeight() + 7))
         reload_button.Bind(wx.EVT_BUTTON, on_reload)
-        reload_button.SetToolTip("Reload serial device list")
+        reload_button.SetToolTip(_("Reload serial device list"))
 
         self.project_choice = wx.Choice(panel, choices=firmware_list.get_project_list())
         self.project_choice.Bind(wx.EVT_CHOICE, on_select_project)
@@ -486,10 +510,10 @@ class NodeMcuFlasher(wx.Frame):
             sizer.AddSpacer(10)
 
         erase = self._config.erase_before_flash
-        add_erase_radio_button(erase_boxsizer, 0, False, "no", erase is False)
-        add_erase_radio_button(erase_boxsizer, 1, True, "yes, wipes all data", erase is True)
+        add_erase_radio_button(erase_boxsizer, 0, False, _("no"), erase is False)
+        add_erase_radio_button(erase_boxsizer, 1, True, _("yes, wipes all data"), erase is True)
 
-        button = wx.Button(panel, -1, "Download Firmware and Flash Controller")
+        button = wx.Button(panel, -1, _("Download Firmware and Flash Controller"))
         button.Bind(wx.EVT_BUTTON, on_clicked)
 
         self.console_ctrl = wx.TextCtrl(panel, style=wx.TE_MULTILINE | wx.TE_READONLY | wx.HSCROLL)
@@ -499,11 +523,11 @@ class NodeMcuFlasher(wx.Frame):
         self.console_ctrl.SetForegroundColour(wx.BLUE)
         self.console_ctrl.SetDefaultStyle(wx.TextAttr(wx.BLUE))
 
-        port_label = wx.StaticText(panel, label="Serial port")
-        project_label = wx.StaticText(panel, label="Project ")
-        device_family_label = wx.StaticText(panel, label="Device Family ")
-        firmware_label = wx.StaticText(panel, label="Firmware ")
-        baud_label = wx.StaticText(panel, label="Baud rate ")
+        port_label = wx.StaticText(panel, label=_("Serial port"))
+        project_label = wx.StaticText(panel, label=_("Project") + " ")
+        device_family_label = wx.StaticText(panel, label=_("Device Family") + " ")
+        firmware_label = wx.StaticText(panel, label=_("Firmware") + " ")
+        baud_label = wx.StaticText(panel, label=_("Baud rate") + " ")
         # flashmode_label = wx.StaticText(panel, label="Flash mode ")
 
         # def on_info_hover(event):
@@ -525,8 +549,8 @@ class NodeMcuFlasher(wx.Frame):
         # flashmode_label_boxsizer.AddStretchSpacer(0)
         # flashmode_label_boxsizer.Add(icon, 0, 0, 20)
 
-        erase_label = wx.StaticText(panel, label="Erase flash")
-        console_label = wx.StaticText(panel, label="Console")
+        erase_label = wx.StaticText(panel, label=_("Erase flash"))
+        console_label = wx.StaticText(panel, label=_("Console"))
 
         fgs.AddMany([
                     port_label, (serial_boxsizer, 1, wx.EXPAND),
@@ -564,7 +588,7 @@ class NodeMcuFlasher(wx.Frame):
     def _build_status_bar(self):
         self.statusBar = self.CreateStatusBar(2, wx.STB_SIZEGRIP)
         self.statusBar.SetStatusWidths([-2, -1])
-        status_text = "Welcome to BrewFlasher %s" % __version__
+        status_text = _("Welcome to BrewFlasher {version}").format(version=__version__)
         self.statusBar.SetStatusText(status_text, 0)
 
     def _build_menu_bar(self):
@@ -573,14 +597,15 @@ class NodeMcuFlasher(wx.Frame):
         # File menu
         file_menu = wx.Menu()
         wx.App.SetMacExitMenuItemId(wx.ID_EXIT)
-        exit_item = file_menu.Append(wx.ID_EXIT, "E&xit\tCtrl-Q", "Exit BrewFlasher")
+        # TODO - Figure out what internationalization needs to take place here
+        exit_item = file_menu.Append(wx.ID_EXIT, "E&xit\tCtrl-Q", _("Exit BrewFlasher"))
         exit_item.SetBitmap(images.Exit.GetBitmap())
         self.Bind(wx.EVT_MENU, self._on_exit_app, exit_item)
         self.menuBar.Append(file_menu, "&File")
 
         # Help menu
         help_menu = wx.Menu()
-        help_item = help_menu.Append(wx.ID_ABOUT, '&About BrewFlasher', 'About')
+        help_item = help_menu.Append(wx.ID_ABOUT, '&About BrewFlasher', _('About'))
         self.Bind(wx.EVT_MENU, self._on_help_about, help_item)
         self.menuBar.Append(help_menu, '&Help')
 
