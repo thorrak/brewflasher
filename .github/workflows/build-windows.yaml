@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - win-build
+
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ['windows-latest', 'ubuntu-latest']
+
+    steps:
+    - uses: actions/checkout@v3.5.3
+    - uses: actions/setup-python@v4.6.1
+      with:
+        python-version: '3.9'
+
+    - run: pip install -r requirements.txt
+    - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
+    # Optionally verify that it works (provided that it does not need user interaction)
+#    - run: ./dist/your-code/your-code
+    - uses: actions/upload-artifact@v2
+      with:
+        path: dist/*
