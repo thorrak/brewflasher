@@ -17,6 +17,7 @@ jobs:
     - run: pip install -r requirements.txt
     - name: rebuild bootloader
       run: |
+        pip install wheel
         pip uninstall -y pyinstaller
         git clone https://github.com/pyinstaller/pyinstaller
         cd pyinstaller
