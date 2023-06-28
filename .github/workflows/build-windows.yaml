@@ -15,7 +15,7 @@ jobs:
         python-version: '3.9'
 
     - run: pip install -r requirements.txt
-    - run: python3 compile_languages.py
+    - run: python3 compile_languages.py locales
     - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
     # Optionally verify that it works (provided that it does not need user interaction)
 #    - run: ./dist/your-code/your-code
