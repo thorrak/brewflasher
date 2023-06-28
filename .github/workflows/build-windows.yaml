@@ -15,6 +15,17 @@ jobs:
         python-version: '3.9'
 
     - run: pip install -r requirements.txt
+    - name: rebuild bootloader
+      run: |
+        pip uninstall -y pyinstaller
+        rm -rf pyinstaller
+        git clone https://github.com/pyinstaller/pyinstaller
+        cd pyinstaller
+        cd bootloader
+        python3 ./waf distclean all
+        python3 setup.py install
+        cd ..
+        cd ..
     - run: python3 compile_languages.py locales
     - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
     # Optionally verify that it works (provided that it does not need user interaction)
