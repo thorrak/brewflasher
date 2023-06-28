@@ -18,7 +18,6 @@ jobs:
     - name: rebuild bootloader
       run: |
         pip uninstall -y pyinstaller
-        rm -rf pyinstaller
         git clone https://github.com/pyinstaller/pyinstaller
         cd pyinstaller
         cd bootloader
