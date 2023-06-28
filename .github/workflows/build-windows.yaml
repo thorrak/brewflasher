@@ -24,7 +24,7 @@ jobs:
         cd bootloader
         python3 ./waf distclean all
         cd ..
-        python3 setup.py install
+        pip install .
         cd ..
     - run: python3 compile_languages.py locales
     - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
