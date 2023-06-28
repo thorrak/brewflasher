@@ -6,4 +6,5 @@ wxPython==4.2.1
 PyInstaller==5.13.0
 requests==2.31.0
 pyserial==3.5
-pyobjc==9.2
+
+# pyobjc==9.2  # This is for Mac OS X only
