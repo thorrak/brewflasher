@@ -26,6 +26,7 @@ import brewflasher_com_integration
 firmware_list = brewflasher_com_integration.FirmwareList()
 
 import locale
+import platform
 
 def get_language_code():
     # getdefaultlocale returns a tuple where first element is 'language_encoding'
@@ -35,12 +36,26 @@ def get_language_code():
         # The language code is the first two characters of the locale string
         return lang_encoding[0][0:2]
     else:
+        if platform.system() == 'Darwin':
+            # For MacOS we need to use the Foundation framework to get the language code. This is because the
+            # getdefaultlocale() function returns None for the language code on MacOS in instances where the language
+            # and the location do not match (ie. English language in Germany). This is a known issue with Python on
+            # MacOS. See https://bugs.python.org/issue18378 for more details.
+            import objc
+            from Foundation import NSLocale
+            # # Get the NSLocale class
+            # NSLocaleClass = objc.lookUpClass('NSLocale')
+
+            # Use the class method 'currentLocale' to retrieve the current locale
+            language_code = NSLocale.preferredLanguages()[0][0:2]
+            return language_code
+        # Force fallback to English
         return None
 
 # Bundle_dir makes sure this works when frozen with PyInstaller
 bundle_dir = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__))) # get the bundle dir if bundled or simply the __file__ dir if not bundled
 localedir = os.path.abspath(os.path.join(bundle_dir, 'locales'))
-translate = gettext.translation('brewflasher', localedir, languages=[get_language_code()], fallback=False)
+translate = gettext.translation('brewflasher', localedir, languages=[get_language_code()], fallback=True)
 _ = translate.gettext
 
 __version__ = "1.5.1"
