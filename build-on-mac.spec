@@ -4,7 +4,7 @@ block_cipher = None
 
 a = Analysis(['Main.py'],
              binaries=None,
-             datas=[("images", "images")],
+             datas=[("images", "images"),("locales","locales")],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -28,7 +28,7 @@ exe = EXE(pyz,
           codesign_identity='Developer ID Application: John Beeler (RAS94LVJ7S)',
           console=False , icon='images/icon-512.icns')
 app = BUNDLE(exe,
-             name='BrewFlasher-1.5.app',
+             name='BrewFlasher-1.5.1.app',
              icon='./images/icon-512.icns',
              bundle_identifier='com.brewflasher.macos',
              info_plist={
@@ -36,8 +36,8 @@ app = BUNDLE(exe,
                'NSAppleScriptEnabled': False,
                'LSRequiresIPhoneOS': False,
                'LSApplicationCategoryType': 'public.app-category.utilities',
-               'CFBundleVersion': '1.5.0',
-               'CFBundleShortVersionString': '1.5',
+               'CFBundleVersion': '1.5.1',
+               'CFBundleShortVersionString': '1.5.1',
                'CFBundleSignature': 'BFLS',
                'LSMinimumSystemVersion': '10.4.0'
                },
