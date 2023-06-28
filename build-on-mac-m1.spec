@@ -4,7 +4,7 @@ block_cipher = None
 
 a = Analysis(['Main.py'],
              binaries=None,
-             datas=[("images", "images"),("locales","locales")],
+             datas=[("images", "images"),("locales","locales"),("esptool","esptool")],
              hiddenimports=['charset_normalizer.md__mypyc'],
              hookspath=[],
              runtime_hooks=[],

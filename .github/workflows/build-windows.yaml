@@ -20,6 +20,7 @@ jobs:
         pip install wheel
         pip uninstall -y pyinstaller
         git clone https://github.com/pyinstaller/pyinstaller
+        git checkout v5.13.0
         cd pyinstaller
         cd bootloader
         python3 ./waf distclean all

@@ -27,7 +27,11 @@ firmware_list = brewflasher_com_integration.FirmwareList()
 
 import locale
 import platform
-
+# import sentry_sdk
+# sentry_sdk.init(
+#     "http://36f4457e97c34b169aaa9014920c6e5e@sentry.optictheory.com:9000/12",
+#     traces_sample_rate=0.0
+# )
 def get_language_code():
     # getdefaultlocale returns a tuple where first element is 'language_encoding'
     lang_encoding = locale.getdefaultlocale()
@@ -274,7 +278,7 @@ class FlashingThread(threading.Thread):
             sleep(0.1)
             self._parent.report_error(e.strerror)
             raise e
-        except:
+        except Exception as e:
             sleep(0.1)
             print(_("Firmware flashing FAILED. esptool.py raised an error."))
             print("")
@@ -285,6 +289,8 @@ class FlashingThread(threading.Thread):
                 print(_("Alternatively, you may need to manually set the device into 'flash' mode."))
                 print("")
                 print(_("For instructions on how to do this, check this website:\nhttp://www.brewflasher.com/manualflash/"))
+            # sleep(0.1)
+            # sentry_sdk.capture_exception(e)
             return
 
         # The last line printed by esptool is "Staying in bootloader." -> some indication that the process is
