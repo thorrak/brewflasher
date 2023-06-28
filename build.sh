@@ -4,6 +4,7 @@
 #NAME=BrewFlasher
 
 source ./venv/bin/activate
+python3 compile_languages.py
 # NOTE -- YOU NEED TO RUN THE BELOW COMMAND MANUALLY!
 ./venv/bin/pyinstaller --log-level=INFO \
             --noconfirm \
