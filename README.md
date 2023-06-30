@@ -1,7 +1,7 @@
 # BrewFlasher
 ![BrewFlasher Logo](images/BrewFlasher.png)
 
-A standalone desktop application for flashing brewing-related firmware to your ESP8266, ESP32, or ESP32-S2.
+A standalone desktop application for flashing brewing-related firmware to your ESP8266, ESP32, ESP32-C3 or ESP32-S2.
 
 
 ###### Espanol
@@ -12,6 +12,9 @@ BrewFlasher es una aplicación de escritorio independiente que permite al usuari
 
 BrewFlasher ist eine eigenständige Desktopanwendung, welche es Nutzern erlaubt, spezifische Firmware auf einen ESP32, ESP32-S2 oder ESP8266 zu flashen (installieren). Es findet die benötigte Firmware aus dem Internet und flasht sie eigenständig auf deinen Chip. Einfach, schnell und magisch.
 
+###### Svenska
+
+BrewFlasher är en desktop applikation för att programmera mjukvara till projekt med fokus på bryggning.
 
 
 ![Image of BrewFlasher GUI](images/gui.png)
