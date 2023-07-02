@@ -5,7 +5,7 @@ msgstr ""
 "POT-Creation-Date: 2023-06-24 14:16-0400\n"
 "PO-Revision-Date: 2023-07-02 05:34\n"
 "Last-Translator: \n"
-"Language-Team: German\n"
+"Language-Team: Norwegian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,125 +13,125 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: brewflasher-desktop\n"
 "X-Crowdin-Project-ID: 597357\n"
-"X-Crowdin-Language: de\n"
+"X-Crowdin-Language: no\n"
 "X-Crowdin-File: brewflasher.po\n"
 "X-Crowdin-File-ID: 1\n"
-"Language: de_DE\n"
+"Language: no_NO\n"
 
 #: Main.py:54
 msgid "Auto-select"
-msgstr "Automatisch auswählen"
+msgstr "Automerking"
 
 #: Main.py:55
 msgid "(first port with Espressif device)"
-msgstr "(erster Port mit Espressif-Gerät)"
+msgstr "(første port med Espressif enhet)"
 
 #: Main.py:101 Main.py:104 Main.py:107
 msgid "Must select the project, device family, and firmware to flash before flashing."
-msgstr "Projekt, Gerätefamilie und Firmware müssen vor dem Flashen ausgewählt werden."
+msgstr "Må velge prosjekt, enhetsfamilie og firmware før flashing."
 
 #: Main.py:110
 msgid "Verifying firmware list is up-to-date before downloading..."
-msgstr "Überprüfe die Firmware-Liste, bevor der Download startet..."
+msgstr "Verifiserer firmwarelisten er oppdatert før nedlasting..."
 
 #: Main.py:112
 msgid "Firmware list is not up to date."
-msgstr "Firmware-Liste ist nicht aktuell."
+msgstr "Firmware listen er ikke oppdatert."
 
 #: Main.py:112 Main.py:149 Main.py:175
 msgid "Relaunch BrewFlasher and try again."
-msgstr "Starte BrewFlasher neu und versuche es erneut."
+msgstr "Restart BrewFlasher og prøv igjen."
 
 #: Main.py:115
 msgid "Downloading firmware..."
-msgstr "Firmware wird heruntergeladen..."
+msgstr "Laster ned firmware..."
 
 #: Main.py:118
 msgid "Downloaded successfully!\n"
-msgstr "Download abgeschlossen!\n"
+msgstr "Nedlasting vellykket!\n"
 
 #: Main.py:120
 msgid "Error - unable to download firmware.\n"
-msgstr "Fehler - Firmware kann nicht heruntergeladen werden.\n"
+msgstr "Feil - kunne ikke laste ned firmware.\n"
 
 #: Main.py:149 Main.py:175
 msgid "Invalid device family detected."
-msgstr "Gerätefamilie nicht unterstützt."
+msgstr "Ugyldig enhetsfamilie oppdaget."
 
 #: Main.py:199
 msgid "ERROR - Cannot automatically select the serial port for this device family. Please explicitly select the correct device to continue."
-msgstr "FEHLER – Die serielle Schnittstelle für diese Gerätefamilie konnte nicht automatisch erkannt werden. Wählen Sie das korrekte Gerät aus, um fortzufahren."
+msgstr "FEIL - Kan ikke automatisk velge seriell porten for denne enhetsfamilien. Vennligst velg riktig enhet for å fortsette."
 
 #: Main.py:224
 msgid "Performing 1200 bps touch"
-msgstr "1200 Bit/s Ping wird ausgeführt"
+msgstr "Utfører 1200 bps touch"
 
 #: Main.py:234
 msgid "...unable to perform 1200bps touch."
-msgstr "...1200 Bit/s Ping konnte nicht ausgeführt werden."
+msgstr "...kan ikke gjøre 1200bps touch."
 
 #: Main.py:236
 msgid "Make sure you have selected the correct serial port (auto-select will not work for this chip) and try again."
-msgstr "Stellen Sie sicher, dass Sie den richtigen seriellen Port ausgewählt haben (automatische Auswahl funktioniert nicht für diesen Chip) und versuchen Sie es erneut."
+msgstr "Sørg for at du har valgt riktig seriell port (automerking fungerer ikke for denne chipen) og prøv igjen."
 
 #: Main.py:238 Main.py:259
 msgid "Alternatively, you may need to manually set the device into 'flash' mode."
-msgstr "Alternativ müssen sie das Gerät in den Flash-Modus ändern."
+msgstr "Alternativt kan du manuelt sette enheten i \"flash\" modus."
 
 #: Main.py:240 Main.py:261
 msgctxt "German translation of the guide is available, and will be good to add to the page at that URL"
 msgid "For instructions on how to do this, check this website:\n"
 "http://www.brewflasher.com/manualflash/"
-msgstr "Für Anweisungen, wie man dies macht, ist diese Website hilfreich:\n"
+msgstr "For instruksjoner om hvordan du skal gjøre dette, se denne siden:\n"
 "http://www.brewflasher.com/manualflash/"
 
 #: Main.py:253
 msgid "Firmware flashing FAILED. esptool.py raised an error."
-msgstr "Firmware Flash fehlgeschlagen. esptool.py meldet einen Fehler."
+msgstr "Firmware flashing FEILET. esptool.py utløste en feil."
 
 #: Main.py:255
 msgid "Try flashing again, or try flashing with a slower speed."
-msgstr "Versuch den Flash nochmal, oder Flashe mit einer langsameren Geschwindigkeit."
+msgstr "Prøv å flashe igjen, eller prøv å flashe med en lavere hastighet."
 
 #: Main.py:267
 msgid "Firmware successfully flashed. Reset device to switch back to normal boot mode."
-msgstr "Firmware erfolgreich geflasht. Starte das Gerät neu, um zum normalen Boot-Modus zurückzukehren."
+msgstr "Firmware flashet. Reset enheten for å bytte tilbake til normal boot modus."
 
 #: Main.py:338
 msgid "Connect your device"
-msgstr "Verbinde das Gerät"
+msgstr "Koble til enheten din"
 
 #: Main.py:340
 msgid "If you chose the serial port auto-select feature you might need to turn off Bluetooth"
-msgstr "Wenn Sie die automatische Auswahl der seriellen Schnittstelle ausgewählt haben, muss Bluetooth möglicherweise deaktiviert sein"
+msgstr "Hvis du valgte seriell port automerk funksjonen må du muligens slå av Bluetooth"
 
 #: Main.py:433
 msgid "Reload serial device list"
-msgstr "Schnittstellengeräteliste neu laden"
+msgstr "Oppdater seriell enhetsliste"
 
 #: Main.py:502
 msgid "no"
-msgstr "Nein"
+msgstr "nei"
 
 #: Main.py:503
 msgid "yes, wipes all data"
-msgstr "Ja (alle Daten werden gelöscht)"
+msgstr "ja, sletter all data"
 
 #: Main.py:505
 msgid "Download Firmware and Flash Controller"
-msgstr "Firmware und Flash-Controller herunterladen"
+msgstr "Last ned Firmware og Flash-kontroller"
 
 #: Main.py:515
 msgid "Serial port"
-msgstr "Serielle Schnittstelle"
+msgstr "Seriell port"
 
 #: Main.py:516
 msgid "Project"
-msgstr "Projekt"
+msgstr "Prosjekt"
 
 #: Main.py:517
 msgid "Device Family"
-msgstr "Gerätefamilie"
+msgstr "Enhetsfamilie"
 
 #: Main.py:518
 msgid "Firmware"
@@ -139,25 +139,25 @@ msgstr "Firmware"
 
 #: Main.py:519
 msgid "Baud rate"
-msgstr "Baudrate"
+msgstr "Overføringshastighet"
 
 #: Main.py:541
 msgid "Erase flash"
-msgstr "Flash löschen"
+msgstr "Slett flash"
 
 #: Main.py:542
 msgid "Console"
-msgstr "Konsole"
+msgstr "Konsoll"
 
 #: Main.py:580
 msgid "Welcome to BrewFlasher {version}"
-msgstr "Willkommen zu BrewFlasher {version}"
+msgstr "Velkommen til BrewFlasher {version}"
 
 #: Main.py:590
 msgid "Exit BrewFlasher"
-msgstr "BrewFlasher beenden"
+msgstr "Avslutt BrewFlasher"
 
 #: Main.py:597
 msgid "About"
-msgstr "Info"
+msgstr "Om"
 
