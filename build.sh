@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #rm -fr build dist
-#VERSION=1.3
+#VERSION=1.5.2
 #NAME=BrewFlasher
 
 source ./venv/bin/activate
-python3 compile_languages.py
+python3 compile_languages.py locales
 # NOTE -- YOU NEED TO RUN THE BELOW COMMAND MANUALLY!
 ./venv/bin/pyinstaller --log-level=INFO \
             --noconfirm \
