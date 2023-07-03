@@ -27,10 +27,11 @@ jobs:
         cd ..
         pip install .
         cd ..
-    - run: python3 compile_languages.py locales
+    - name: compile locales
+      run: python3 compile_languages.py locales
     - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
-    # Optionally verify that it works (provided that it does not need user interaction)
-#    - run: ./dist/your-code/your-code
-    - uses: actions/upload-artifact@v2
+
+    - name: upload artifact
+      uses: actions/upload-artifact@v2
       with:
         path: dist/*
