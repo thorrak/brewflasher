@@ -101,6 +101,19 @@ comparison to that project, BrewFlasher adds explicit ESP32 & ESP32-S2 support a
 downloading brewing-related firmware to flash. The firmware selection is taken from a curated list maintained 
 behind-the-scenes on BrewFlasher.com.
 
+### Special Thank You
+
+A special THANK YOU goes out to the following people who assisted with translating BrewFlasher into other languages:
+
+- **Deutsche**: TheySaidGetAnAlt on Reddit
+- **Español**: iloverentmusical on Reddit
+- **Svenska**: @mp-se
+- **Norsk**: bardevjen on HomeBrewTalk
+
+Interested in helping translate BrewFlasher, or have suggestions to improve one of the translations? Please reach out - either on HomeBrewTalk or by raising an issue/pull request here on GitHub!
+
+
+
 
 ## License
 This package was based on the NodeMCU PyFlasher project which is licensed under [MIT](http://opensource.org/licenses/MIT) 
