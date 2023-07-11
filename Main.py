@@ -29,7 +29,7 @@ import locale
 import platform
 # import sentry_sdk
 # sentry_sdk.init(
-#     "http://36f4457e97c34b169aaa9014920c6e5e@sentry.optictheory.com:9000/12",
+#     "https://21d2d6b97fc841c28bef22de75cdea43@sentry.optictheory.com/2",
 #     traces_sample_rate=0.0
 # )
 def get_language_code():
