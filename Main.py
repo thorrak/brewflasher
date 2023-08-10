@@ -84,6 +84,7 @@ __auto_select__ = _("Auto-select")
 __auto_select_explanation__ = _("(first port with Espressif device)")
 __supported_baud_rates__ = [9600, 57600, 74880, 115200, 230400, 460800, 921600]
 
+
 # ---------------------------------------------------------------------------
 
 
@@ -413,12 +414,14 @@ class NodeMcuFlasher(wx.Frame):
             self._config.device_family_string = ""
             self._config.device_family_id = None
             self._config.device_family_1200_bps = False
-            self.device_choice.SetItems(firmware_list.get_device_family_list(selected_project_id=self._config.project_id))
+            list_of_device_families = [""] + firmware_list.get_device_family_list(selected_project_id=self._config.project_id)
+            self.device_choice.SetItems(list_of_device_families)
 
             # reset the firmware items
             self._config.firmware_string = ""
             self._config.firmware_obj = None
-            self.firmware_choice.SetItems(firmware_list.get_firmware_list(selected_project_id=self._config.project_id))
+            list_of_firmware = [""] + firmware_list.get_firmware_list(selected_project_id=self._config.project_id)
+            self.firmware_choice.SetItems(list_of_firmware)
 
         def on_select_device_family(event):
             choice = event.GetEventObject()
@@ -434,8 +437,9 @@ class NodeMcuFlasher(wx.Frame):
             # reset the firmware items
             self._config.firmware_string = ""
             self._config.firmware_obj = None
-            self.firmware_choice.SetItems(firmware_list.get_firmware_list(selected_project_id=self._config.project_id,
-                                                                          selected_family_id=self._config.device_family_id))
+            list_of_firmware = [""] + firmware_list.get_firmware_list(selected_project_id=self._config.project_id,
+                                                                      selected_family_id=self._config.device_family_id)
+            self.firmware_choice.SetItems(list_of_firmware)
 
         def on_select_firmware(event):
             choice = event.GetEventObject()
@@ -464,13 +468,16 @@ class NodeMcuFlasher(wx.Frame):
         reload_button.Bind(wx.EVT_BUTTON, on_reload)
         reload_button.SetToolTip(_("Reload serial device list"))
 
-        self.project_choice = wx.Choice(panel, choices=firmware_list.get_project_list())
+        list_of_projects = [""] + firmware_list.get_project_list()
+        self.project_choice = wx.Choice(panel, choices=list_of_projects)
         self.project_choice.Bind(wx.EVT_CHOICE, on_select_project)
 
-        self.device_choice = wx.Choice(panel, choices=firmware_list.get_device_family_list())
+        list_of_families = [""] + firmware_list.get_device_family_list()
+        self.device_choice = wx.Choice(panel, choices=list_of_families)
         self.device_choice.Bind(wx.EVT_CHOICE, on_select_device_family)
 
-        self.firmware_choice = wx.Choice(panel, choices=firmware_list.get_firmware_list())
+        list_of_firmware = [""] + firmware_list.get_firmware_list()
+        self.firmware_choice = wx.Choice(panel, choices=list_of_firmware)
         self.firmware_choice.Bind(wx.EVT_CHOICE, on_select_firmware)
 
 
