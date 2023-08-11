@@ -50,6 +50,7 @@ class Firmware:
     name: str = ""
     version: str = ""
     family_id: int = 0
+    family: DeviceFamily = None
     variant: str = ""
     is_fermentrack_supported: str = ""
     in_error: str = ""
@@ -250,30 +251,26 @@ class FirmwareList:
         if len(data) > 0:
             # Then loop through the data we received and recreate it again
             for row in data:
-                try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
-                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
-                    new_firmware = Firmware(
-                        name=row['name'], version=row['version'], family_id=row['family_id'],
-                        variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
-                        in_error=row['in_error'], description=row['description'],
-                        variant_description=row['variant_description'], download_url=row['download_url'],
-                        post_install_instructions=row['post_install_instructions'], weight=row['weight'],
-                        download_url_partitions=row['download_url_partitions'],
-                        download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
-                        checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
-                        spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
-                    )
-                    if new_firmware.family_id in self.valid_family_ids:  # The firmware is for an ESP of some sort
-                        # Add the firmware to the appropriate DeviceFamily's list
-                        self.DeviceFamilies[new_firmware.family_id].firmware.append(new_firmware)
-                        self.Projects[new_firmware.project_id].device_families[new_firmware.family_id].firmware.append(
-                            new_firmware)
-                except:
-                    print("\nUnable to load firmware list from BrewFlasher.com.")
-                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
-                          "to receive this error, please check that you have the latest version of BrewFlasher.")
-                    pass
+                if row['family_id'] not in self.valid_family_ids:
+                    continue  # The family ID has been excluded (e.g. Arduino, and esptool only is selected)
+
+                new_firmware = Firmware(
+                    name=row['name'], version=row['version'], family_id=row['family_id'],
+                    family=self.DeviceFamilies[row['family_id']],
+                    variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
+                    in_error=row['in_error'], description=row['description'],
+                    variant_description=row['variant_description'], download_url=row['download_url'],
+                    post_install_instructions=row['post_install_instructions'], weight=row['weight'],
+                    download_url_partitions=row['download_url_partitions'],
+                    download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
+                    checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
+                    spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
+                )
+
+                # Add the firmware to the appropriate DeviceFamily's list
+                self.DeviceFamilies[new_firmware.family_id].firmware.append(new_firmware)
+                self.Projects[new_firmware.project_id].device_families[new_firmware.family_id].firmware.append(
+                    new_firmware)
 
             return True  # Firmware table is updated
         return False  # We didn't get data back from Brewflasher.com, or there was an error
