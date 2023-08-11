@@ -64,7 +64,7 @@ localedir = os.path.abspath(os.path.join(bundle_dir, 'locales'))
 translate = gettext.translation('brewflasher', localedir, languages=[get_language_code()], fallback=True)
 _ = translate.gettext
 
-__version__ = "1.5.1"
+__version__ = "1.6.0"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 # <p>
