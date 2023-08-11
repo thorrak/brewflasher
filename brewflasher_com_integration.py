@@ -10,6 +10,26 @@ BREWFLASHER_COM_URL = "https://www.brewflasher.com/firmware"
 MODEL_VERSION = 3
 
 
+class DeviceFamily:
+    def __init__(self, name="", flash_method="", id=0, detection_family="", use_1200_bps_touch=False,
+                 download_url_bootloader="", download_url_otadata="", otadata_address="", checksum_bootloader="",
+                 checksum_otadata=""):
+        self.name = name
+        self.flash_method = flash_method
+        self.detection_family = detection_family
+        self.id = id
+        self.firmware = []
+        self.use_1200_bps_touch = use_1200_bps_touch
+        self.download_url_bootloader = download_url_bootloader
+        self.download_url_otadata = download_url_otadata
+        self.otadata_address = otadata_address
+        self.checksum_bootloader = checksum_bootloader
+        self.checksum_otadata = checksum_otadata
+
+    def __str__(self):
+        return self.name
+
+
 class Project:
     def __init__(self, name="", weight=0, description="", support_url="", id=0, project_url="", documentation_url="",
                  show=""):
@@ -153,24 +173,6 @@ class Firmware:
         return False
 
 
-class DeviceFamily:
-    def __init__(self, name="", flash_method="", id=0, detection_family="", use_1200_bps_touch=False,
-                 download_url_bootloader="", download_url_otadata="", otadata_address="", checksum_bootloader="",
-                 checksum_otadata=""):
-        self.name = name
-        self.flash_method = flash_method
-        self.detection_family = detection_family
-        self.id = id
-        self.firmware = []
-        self.use_1200_bps_touch = use_1200_bps_touch
-        self.download_url_bootloader = download_url_bootloader
-        self.download_url_otadata = download_url_otadata
-        self.otadata_address = otadata_address
-        self.checksum_bootloader = checksum_bootloader
-        self.checksum_otadata = checksum_otadata
-
-    def __str__(self):
-        return self.name
 
 
 # FirmwareList is intended as a singleton
@@ -373,7 +375,7 @@ class FirmwareList:
         if family_id not in self.Projects[project_id].device_families:
             # The family_id was invalid  - Return None
             return None
-        # Iterate throuh the list of firmware to find the appropriate one
+        # Iterate through the list of firmware to find the appropriate one
         for this_firmware in self.Projects[project_id].device_families[family_id].firmware:
             if str(this_firmware) == firmware_str:
                 return this_firmware
