@@ -118,8 +118,8 @@ class Firmware:
             cur_filepath = os.path.dirname(os.path.realpath(__file__))
         return os.path.join(cur_filepath, bintype + ".bin")
 
-    def download_to_file(self, device_family, check_checksum=True, force_download=False):
-        # If this is a multi-part firmware (ESP32, with partitions or SPIFFS) then download the additional parts.
+    def download_to_file(self, check_checksum: bool = True, force_download: bool = False):
+        # If this is a multipart firmware (e.g. ESP32, with partitions or SPIFFS) then download the additional parts.
         if len(self.download_url_partitions) > 12:
             print("Downloading partitions file...")
             if not self.download_file(self.full_filepath("partitions"), self.download_url_partitions,
@@ -134,17 +134,17 @@ class Firmware:
                 print("Error downloading SPIFFS/LittleFS file!")
                 return False
 
-        if len(device_family.download_url_bootloader) > 12:
+        if len(self.family.download_url_bootloader) > 12:
             print("Downloading bootloader file...")
-            if not self.download_file(self.full_filepath("bootloader"), device_family.download_url_bootloader,
-                                      device_family.checksum_bootloader, check_checksum, force_download):
+            if not self.download_file(self.full_filepath("bootloader"), self.family.download_url_bootloader,
+                                      self.family.checksum_bootloader, check_checksum, force_download):
                 print("Error downloading bootloader file!")
                 return False
 
-        if len(device_family.download_url_otadata) > 12 and len(device_family.otadata_address) > 2:
+        if len(self.family.download_url_otadata) > 12 and len(self.family.otadata_address) > 2:
             print("Downloading otadata file...")
-            if not self.download_file(self.full_filepath("otadata"), device_family.download_url_otadata,
-                                      device_family.checksum_otadata, check_checksum, force_download):
+            if not self.download_file(self.full_filepath("otadata"), self.family.download_url_otadata,
+                                      self.family.checksum_otadata, check_checksum, force_download):
                 print("Error downloading otadata file!")
                 return False
 

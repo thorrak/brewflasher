@@ -143,7 +143,7 @@ class FlashingThread(threading.Thread):
 
         print(_("Downloading firmware..."))
         device_family = firmware_list.DeviceFamilies[self._config.firmware_obj.family_id]
-        if self._config.firmware_obj.download_to_file(device_family=device_family):
+        if self._config.firmware_obj.download_to_file():
             print(_("Downloaded successfully!\n"))
         else:
             print(_("Error - unable to download firmware.\n"))
