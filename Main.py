@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import subprocess
+from shutil import which
 from time import sleep
 
 import serial
@@ -83,6 +85,12 @@ __version__ = "1.6.0"
 __auto_select__ = _("Auto-select")
 __auto_select_explanation__ = _("(first port with Espressif device)")
 __supported_baud_rates__ = [9600, 57600, 74880, 115200, 230400, 460800, 921600]
+
+def check_for_avrdude() -> bool:
+    if which("avrdude") is not None or which("avrdude.exe") is not None:
+        return True
+    else:
+        return False
 
 # ---------------------------------------------------------------------------
 
@@ -254,7 +262,8 @@ class FlashingThread(threading.Thread):
                 sleep(0.1)
                 ser = serial.Serial(self._config.port, baudrate=1200, timeout=5, write_timeout=0)
                 sleep(1.5)
-                print("...done\n")
+                print(_("...done"))
+                print("")
                 ser.close()
             except SerialException as e:
                 # sleep(0.1)
@@ -370,6 +379,11 @@ class NodeMcuFlasher(wx.Frame):
         print(_("Connect your device"))
         print("")
         print(_("If you chose the serial port auto-select feature you might need to turn off Bluetooth"))
+
+        if not check_for_avrdude():
+            print("")
+            print(_("Avrdude was not found. Arduino firmware cannot be flashed."))
+            print(_("To install Avrdude, follow the instructions at https://github.com/avrdudes/avrdude/"))
 
     def _init_ui(self):
         def on_reload(event):

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: brewflasher-desktop\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-10 20:18-0400\n"
-"PO-Revision-Date: 2023-08-11 01:01\n"
+"POT-Creation-Date: 2023-08-11 21:29-0400\n"
+"PO-Revision-Date: 2023-08-12 01:43\n"
 "Last-Translator: \n"
 "Language-Team: Norwegian\n"
 "MIME-Version: 1.0\n"
@@ -26,145 +26,153 @@ msgstr "Automerking"
 msgid "(first port with Espressif device)"
 msgstr "(første port med Espressif enhet)"
 
-#: Main.py:138 Main.py:141 Main.py:144
+#: Main.py:127 Main.py:269 Main.py:272 Main.py:275
 msgid "Must select the project, device family, and firmware to flash before flashing."
 msgstr "Må velge prosjekt, enhetsfamilie og firmware før flashing."
 
-#: Main.py:147
+#: Main.py:130 Main.py:278
 msgid "Verifying firmware list is up-to-date before downloading..."
 msgstr "Verifiserer firmwarelisten er oppdatert før nedlasting..."
 
-#: Main.py:149
+#: Main.py:132 Main.py:280
 msgid "Firmware list is not up to date."
 msgstr "Firmware listen er ikke oppdatert."
 
-#: Main.py:149 Main.py:190 Main.py:216 Main.py:342
+#: Main.py:132 Main.py:168 Main.py:280 Main.py:317 Main.py:343
 msgid "Relaunch BrewFlasher and try again."
 msgstr "Restart BrewFlasher og prøv igjen."
 
-#: Main.py:152
+#: Main.py:135 Main.py:283
 msgid "Downloading firmware..."
 msgstr "Laster ned firmware..."
 
-#: Main.py:155
-msgid "Downloaded successfully!\n"
-msgstr "Nedlasting vellykket!\n"
-
-#: Main.py:157
+#: Main.py:137 Main.py:288
 msgid "Error - unable to download firmware.\n"
 msgstr "Feil - kunne ikke laste ned firmware.\n"
 
-#: Main.py:190 Main.py:216 Main.py:342
+#: Main.py:139 Main.py:286
+msgid "Downloaded successfully!\n"
+msgstr "Nedlasting vellykket!\n"
+
+#: Main.py:168 Main.py:317 Main.py:343
 msgid "Invalid device family detected."
 msgstr "Ugyldig enhetsfamilie oppdaget."
 
-#: Main.py:240
-msgid "ERROR - Cannot automatically select the serial port for this device family. Please explicitly select the correct device to continue."
-msgstr "FEIL - Kan ikke automatisk velge seriell porten for denne enhetsfamilien. Vennligst velg riktig enhet for å fortsette."
+#: Main.py:206
+msgid "Invalid flash method detected. Update BrewFlasher and try again."
+msgstr "Ugyldig flash-metode oppdaget. Oppdater BrewFlasher og prøv igjen."
 
-#: Main.py:265
+#: Main.py:212 Main.py:392
 msgid "Performing 1200 bps touch"
-msgstr "Utfører 1200 bps touch"
+msgstr "Utfører 1200 bps test"
 
-#: Main.py:275
+#: Main.py:215 Main.py:396
+msgid "...done"
+msgstr "...ferdig"
+
+#: Main.py:219 Main.py:403
 msgid "...unable to perform 1200bps touch."
-msgstr "...kan ikke gjøre 1200bps touch."
+msgstr "...kan ikke gjøre 1200bps test."
 
-#: Main.py:278
+#: Main.py:222 Main.py:406
 msgid "Make sure you have selected the correct serial port (auto-select will not work for this chip) and try again."
 msgstr "Sørg for at du har valgt riktig seriell port (automerking fungerer ikke for denne chipen) og prøv igjen."
 
-#: Main.py:280 Main.py:301 Main.py:334
+#: Main.py:224 Main.py:245 Main.py:408 Main.py:429
 msgid "Alternatively, you may need to manually set the device into 'flash' mode."
 msgstr "Alternativt kan du manuelt sette enheten i \"flash\" modus."
 
-#: Main.py:282 Main.py:303 Main.py:336
+#: Main.py:226 Main.py:247 Main.py:410 Main.py:431
 msgid "For instructions on how to do this, check this website:\n"
 "http://www.brewflasher.com/manualflash/"
 msgstr "For instruksjoner om hvordan du skal gjøre dette, se denne siden:\n"
 "http://www.brewflasher.com/manualflash/"
 
-#: Main.py:295 Main.py:328
+#: Main.py:239 Main.py:423
 msgid "Firmware flashing FAILED. esptool.py raised an error."
 msgstr "Firmware flashing FEILET. esptool.py utløste en feil."
 
-#: Main.py:297 Main.py:330
+#: Main.py:241 Main.py:425
 msgid "Try flashing again, or try flashing with a slower speed."
 msgstr "Prøv å flashe igjen, eller prøv å flashe med en lavere hastighet."
 
-#: Main.py:312 Main.py:425
-msgid "Avrdude was not found. Arduino firmware cannot be flashed."
-msgstr "Avrdude ble ikke funnet. Arduino-firmware kan ikke flashes."
-
-#: Main.py:313 Main.py:426
-msgid "To install Avrdude, follow the instructions at https://github.com/avrdudes/avrdude/"
-msgstr "For å installere Avrdude, følg instruksjonene på https://github.com/avrdudes/avrdude/"
-
-#: Main.py:347
+#: Main.py:253 Main.py:439
 msgid "Firmware successfully flashed. Reset device to switch back to normal boot mode."
 msgstr "Firmware flashet. Reset enheten for å bytte tilbake til normal boot modus."
 
-#: Main.py:419
+#: Main.py:367
+msgid "ERROR - Cannot automatically select the serial port for this device family. Please explicitly select the correct device to continue."
+msgstr "FEIL - Kan ikke automatisk velge seriell porten for denne enhetsfamilien. Vennligst velg riktig enhet for å fortsette."
+
+#: Main.py:510
 msgid "Connect your device"
 msgstr "Koble til enheten din"
 
-#: Main.py:421
+#: Main.py:512
 msgid "If you chose the serial port auto-select feature you might need to turn off Bluetooth"
 msgstr "Hvis du valgte seriell port automerk funksjonen må du muligens slå av Bluetooth"
 
-#: Main.py:525
+#: Main.py:516
+msgid "Avrdude was not found. Arduino firmware cannot be flashed."
+msgstr "Avrdude ble ikke funnet. Arduino-firmware kan ikke flashes."
+
+#: Main.py:517
+msgid "To install Avrdude, follow the instructions at https://github.com/avrdudes/avrdude/"
+msgstr "For å installere Avrdude, følg instruksjonene på https://github.com/avrdudes/avrdude/"
+
+#: Main.py:610
 msgid "Reload serial device list"
 msgstr "Oppdater seriell enhetsliste"
 
-#: Main.py:597
+#: Main.py:678
 msgid "no"
 msgstr "nei"
 
-#: Main.py:598
+#: Main.py:679
 msgid "yes, wipes all data"
 msgstr "ja, sletter all data"
 
-#: Main.py:600
+#: Main.py:681
 msgid "Download Firmware and Flash Controller"
 msgstr "Last ned Firmware og Flash-kontroller"
 
-#: Main.py:610
+#: Main.py:691
 msgid "Serial port"
 msgstr "Seriell port"
 
-#: Main.py:611
+#: Main.py:692
 msgid "Project"
 msgstr "Prosjekt"
 
-#: Main.py:612
+#: Main.py:693
 msgid "Device Family"
 msgstr "Enhetsfamilie"
 
-#: Main.py:613
+#: Main.py:694
 msgid "Firmware"
 msgstr "Firmware"
 
-#: Main.py:614
+#: Main.py:695
 msgid "Baud rate"
 msgstr "Overføringshastighet"
 
-#: Main.py:636
+#: Main.py:717
 msgid "Erase flash"
 msgstr "Slett flash"
 
-#: Main.py:637
+#: Main.py:718
 msgid "Console"
 msgstr "Konsoll"
 
-#: Main.py:675
+#: Main.py:756
 msgid "Welcome to BrewFlasher {version}"
 msgstr "Velkommen til BrewFlasher {version}"
 
-#: Main.py:685
+#: Main.py:766
 msgid "Exit BrewFlasher"
 msgstr "Avslutt BrewFlasher"
 
-#: Main.py:692
+#: Main.py:773
 msgid "About"
 msgstr "Om"
 
