@@ -6,7 +6,7 @@
 # Note - this command (at least the "pip install" bit) needs to be done from within the virtualenv
 git clone https://github.com/pyinstaller/pyinstaller.git
 cd pyinstaller
-git checkout v5.12
+git checkout v5.13
 cd bootloader
 python ./waf all
 pip install ..

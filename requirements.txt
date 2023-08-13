@@ -1,12 +1,10 @@
 esptool==4.6.2
-# For v4+ of esptool, We need to use my version of esptool, as the "esptool.py" utility file creates issues with PyInstaller
-# git+https://github.com/thorrak/esptool.git@v41_noutil
 wxPython==4.2.1
 # Previously PyInstaller 3.4 was used - this has security vulnerabilities per GitHub
 PyInstaller==5.13.0
 requests==2.31.0
 pyserial==3.5
-Babel==2.9.1  # For the command line utility so we can build the .mo files
+Babel==2.12.1  # For the command line utility so we can build the .mo files
 charset_normalizer<3.0
 
 # pyobjc==9.2  # This is for Mac OS X only
