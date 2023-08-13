@@ -1,5 +1,6 @@
-from pathlib import Path
+from dataclasses import dataclass, field
 import os.path
+from typing import Dict, List
 import requests
 import copy
 import sys
@@ -10,48 +11,62 @@ BREWFLASHER_COM_URL = "https://www.brewflasher.com/firmware"
 MODEL_VERSION = 3
 
 
-class Project:
-    def __init__(self, name="", weight=0, description="", support_url="", id=0, project_url="", documentation_url="",
-                 show=""):
-        self.name = name
-        self.weight = weight
-        self.description = description
-        self.support_url = support_url
-        self.id = id
-        self.project_url = project_url
-        self.documentation_url = documentation_url
-        self.show = show
-
-        self.device_families = {}
+@dataclass
+class DeviceFamily:
+    name: str = ""
+    flash_method: str = ""
+    detection_family: str = ""
+    id: int = 0
+    firmware: List['Firmware'] = field(default_factory=list)
+    use_1200_bps_touch: bool = False
+    download_url_bootloader: str = ""
+    download_url_otadata: str = ""
+    otadata_address: str = ""
+    checksum_bootloader: str = ""
+    checksum_otadata: str = ""
 
     def __str__(self):
         return self.name
 
 
+@dataclass
+class Project:
+    name: str = ""
+    weight: int = 0
+    description: str = ""
+    support_url: str = ""
+    id: int = 0
+    project_url: str = ""
+    documentation_url: str = ""
+    show: str = ""  # TODO - Ditch this entirely
+    device_families: Dict[int, DeviceFamily] = field(default_factory=dict)
+
+    def __str__(self):
+        return self.name
+
+
+@dataclass
 class Firmware:
-    def __init__(self, name="", version="", family_id=0, variant="", is_fermentrack_supported="",
-                 in_error="", description="", variant_description="", download_url="", id=0, project_id=0,
-                 post_install_instructions="", weight="", download_url_partitions="",
-                 download_url_spiffs="", checksum="", checksum_partitions="", checksum_spiffs="", spiffs_address=""):
-        self.name = name
-        self.version = version
-        self.family_id = family_id
-        self.variant = variant
-        self.is_fermentrack_supported = is_fermentrack_supported
-        self.in_error = in_error
-        self.description = description
-        self.variant_description = variant_description
-        self.download_url = download_url
-        self.post_install_instructions = post_install_instructions
-        self.weight = weight
-        self.download_url_partitions = download_url_partitions
-        self.download_url_spiffs = download_url_spiffs
-        self.checksum = checksum
-        self.checksum_partitions = checksum_partitions
-        self.checksum_spiffs = checksum_spiffs
-        self.spiffs_address = spiffs_address
-        self.id = id
-        self.project_id = project_id
+    name: str = ""
+    version: str = ""
+    family_id: int = 0
+    family: DeviceFamily = None
+    variant: str = ""
+    is_fermentrack_supported: str = ""
+    in_error: str = ""
+    description: str = ""
+    variant_description: str = ""
+    download_url: str = ""
+    post_install_instructions: str = ""
+    weight: str = ""
+    download_url_partitions: str = ""
+    download_url_spiffs: str = ""
+    checksum: str = ""
+    checksum_partitions: str = ""
+    checksum_spiffs: str = ""
+    spiffs_address: str = ""
+    id: int = 0
+    project_id: int = 0
 
     def __str__(self):
         str_rep = self.name
@@ -103,8 +118,8 @@ class Firmware:
             cur_filepath = os.path.dirname(os.path.realpath(__file__))
         return os.path.join(cur_filepath, bintype + ".bin")
 
-    def download_to_file(self, device_family, check_checksum=True, force_download=False):
-        # If this is a multi-part firmware (ESP32, with partitions or SPIFFS) then download the additional parts.
+    def download_to_file(self, check_checksum: bool = True, force_download: bool = False):
+        # If this is a multipart firmware (e.g. ESP32, with partitions or SPIFFS) then download the additional parts.
         if len(self.download_url_partitions) > 12:
             print("Downloading partitions file...")
             if not self.download_file(self.full_filepath("partitions"), self.download_url_partitions,
@@ -119,29 +134,30 @@ class Firmware:
                 print("Error downloading SPIFFS/LittleFS file!")
                 return False
 
-        if len(device_family.download_url_bootloader) > 12:
+        if len(self.family.download_url_bootloader) > 12:
             print("Downloading bootloader file...")
-            if not self.download_file(self.full_filepath("bootloader"), device_family.download_url_bootloader,
-                                      device_family.checksum_bootloader, check_checksum, force_download):
+            if not self.download_file(self.full_filepath("bootloader"), self.family.download_url_bootloader,
+                                      self.family.checksum_bootloader, check_checksum, force_download):
                 print("Error downloading bootloader file!")
                 return False
 
-        if len(device_family.download_url_otadata) > 12 and len(device_family.otadata_address) > 2:
+        if len(self.family.download_url_otadata) > 12 and len(self.family.otadata_address) > 2:
             print("Downloading otadata file...")
-            if not self.download_file(self.full_filepath("otadata"), device_family.download_url_otadata,
-                                      device_family.checksum_otadata, check_checksum, force_download):
+            if not self.download_file(self.full_filepath("otadata"), self.family.download_url_otadata,
+                                      self.family.checksum_otadata, check_checksum, force_download):
                 print("Error downloading otadata file!")
                 return False
 
         # Always download the main firmware
         print("Downloading main firmware file...")
-        return self.download_file(self.full_filepath("firmware"), self.download_url, self.checksum, check_checksum, force_download)
+        return self.download_file(self.full_filepath("firmware"), self.download_url, self.checksum, check_checksum,
+                                  force_download)
 
-    def pre_flash_web_verify(self, brewflasher_version):
+    def pre_flash_web_verify(self, brewflasher_version, flasher="BrewFlasher"):
         """Recheck that the checksum we have cached is still the one that brewflasher.com reports"""
         request_dict = {
             'firmware_id': self.id,
-            'flasher': "BrewFlasher",
+            'flasher': flasher,
             'flasher_version': brewflasher_version
         }
         url = BREWFLASHER_COM_URL + "/api/flash_verify/"
@@ -152,34 +168,22 @@ class Firmware:
                 return True
         return False
 
+    def remove_downloaded_firmware(self):
+        """Delete the downloaded firmware files"""
 
-class DeviceFamily:
-    def __init__(self, name="", flash_method="", id=0, detection_family="", use_1200_bps_touch=False,
-                 download_url_bootloader="", download_url_otadata="", otadata_address="", checksum_bootloader="",
-                 checksum_otadata=""):
-        self.name = name
-        self.flash_method = flash_method
-        self.detection_family = detection_family
-        self.id = id
-        self.firmware = []
-        self.use_1200_bps_touch = use_1200_bps_touch
-        self.download_url_bootloader = download_url_bootloader
-        self.download_url_otadata = download_url_otadata
-        self.otadata_address = otadata_address
-        self.checksum_bootloader = checksum_bootloader
-        self.checksum_otadata = checksum_otadata
+        firmware_types = ["bootloader", "firmware", "partitions", "spiffs", "otadata"]
 
-    def __str__(self):
-        return self.name
+        for firmware_type in firmware_types:
+            if os.path.exists(self.full_filepath(firmware_type)):
+                os.remove(self.full_filepath(firmware_type))
 
 
-# FirmwareList is intended as a singleton
+@dataclass
 class FirmwareList:
-    def __init__(self):
-        self.DeviceFamilies = {}
-        self.Projects = {}
-
-        self.valid_family_ids = []  # Used to store the ESP IDs, since that's all we can use here to flash
+    DeviceFamilies: Dict[int, DeviceFamily] = field(default_factory=dict)
+    Projects: Dict[int, Project] = field(default_factory=dict)
+    # TODO - Double check valid_family_ids now that we support Arduino here
+    valid_family_ids: List[int] = field(default_factory=list)
 
     def __str__(self):
         return "Device Families"
@@ -194,11 +198,11 @@ class FirmwareList:
                 try:
                     # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
                     # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
-                    newProject = Project(name=row['name'], weight=row['weight'], id=row['id'],
-                                         description=row['description'], support_url=row['support_url'],
-                                         project_url=row['project_url'], documentation_url=row['documentation_url'],
-                                         show=row['show_in_standalone_flasher'])
-                    self.Projects[row['id']] = copy.deepcopy(newProject)
+                    new_project = Project(name=row['name'], weight=row['weight'], id=row['id'],
+                                          description=row['description'], support_url=row['support_url'],
+                                          project_url=row['project_url'], documentation_url=row['documentation_url'],
+                                          show=row['show_in_standalone_flasher'])
+                    self.Projects[row['id']] = copy.deepcopy(new_project)
                 except:
                     print("\nUnable to load projects from BrewFlasher.com.")
                     print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
@@ -208,7 +212,7 @@ class FirmwareList:
             return True
         return False  # We didn't get data back from Brewflasher.com, or there was an error
 
-    def load_families_from_website(self, load_esptool_only:bool = True) -> bool:
+    def load_families_from_website(self, load_esptool_only: bool = True) -> bool:
         try:
             url = BREWFLASHER_COM_URL + "/api/firmware_family_list/"
             response = requests.get(url)
@@ -256,30 +260,26 @@ class FirmwareList:
         if len(data) > 0:
             # Then loop through the data we received and recreate it again
             for row in data:
-                try:
-                    # This gets wrapped in a try/except as I don't want this failing if the local copy of BrewFlasher
-                    # is slightly behind what is available at Brewflasher.com (eg - if there are new device families)
-                    newFirmware = Firmware(
-                        name=row['name'], version=row['version'], family_id=row['family_id'],
-                        variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
-                        in_error=row['in_error'], description=row['description'],
-                        variant_description=row['variant_description'], download_url=row['download_url'],
-                        post_install_instructions=row['post_install_instructions'], weight=row['weight'],
-                        download_url_partitions=row['download_url_partitions'],
-                        download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
-                        checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
-                        spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
-                    )
-                    if newFirmware.family_id in self.valid_family_ids:  # The firmware is for an ESP of some sort
-                        # Add the firmware to the appropriate DeviceFamily's list
-                        self.DeviceFamilies[newFirmware.family_id].firmware.append(newFirmware)
-                        self.Projects[newFirmware.project_id].device_families[newFirmware.family_id].firmware.append(
-                            newFirmware)
-                except:
-                    print("\nUnable to load firmware list from BrewFlasher.com.")
-                    print("Please check your internet connection and try launching BrewFlasher again.\nIf you continue "
-                          "to receive this error, please check that you have the latest version of BrewFlasher.")
-                    pass
+                if row['family_id'] not in self.valid_family_ids:
+                    continue  # The family ID has been excluded (e.g. Arduino, and esptool only is selected)
+
+                new_firmware = Firmware(
+                    name=row['name'], version=row['version'], family_id=row['family_id'],
+                    family=self.DeviceFamilies[row['family_id']],
+                    variant=row['variant'], is_fermentrack_supported=row['is_fermentrack_supported'],
+                    in_error=row['in_error'], description=row['description'],
+                    variant_description=row['variant_description'], download_url=row['download_url'],
+                    post_install_instructions=row['post_install_instructions'], weight=row['weight'],
+                    download_url_partitions=row['download_url_partitions'],
+                    download_url_spiffs=row['download_url_spiffs'], checksum=row['checksum'],
+                    checksum_partitions=row['checksum_partitions'], checksum_spiffs=row['checksum_spiffs'],
+                    spiffs_address=row['spiffs_address'], project_id=row['project_id'], id=row['id'],
+                )
+
+                # Add the firmware to the appropriate DeviceFamily's list
+                self.DeviceFamilies[new_firmware.family_id].firmware.append(new_firmware)
+                self.Projects[new_firmware.project_id].device_families[new_firmware.family_id].firmware.append(
+                    new_firmware)
 
             return True  # Firmware table is updated
         return False  # We didn't get data back from Brewflasher.com, or there was an error
@@ -301,7 +301,7 @@ class FirmwareList:
                 del self.Projects[this_project_id]
 
     # We need to load everything in a specific order for it to work
-    def load_from_website(self, load_esptool_only:bool = True) -> bool:
+    def load_from_website(self, load_esptool_only: bool = True) -> bool:
         if self.load_projects_from_website():
             if self.load_families_from_website(load_esptool_only):
                 if self.load_firmware_from_website():
@@ -373,7 +373,7 @@ class FirmwareList:
         if family_id not in self.Projects[project_id].device_families:
             # The family_id was invalid  - Return None
             return None
-        # Iterate throuh the list of firmware to find the appropriate one
+        # Iterate through the list of firmware to find the appropriate one
         for this_firmware in self.Projects[project_id].device_families[family_id].firmware:
             if str(this_firmware) == firmware_str:
                 return this_firmware
