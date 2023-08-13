@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #rm -fr build dist
-#VERSION=1.5.2
+#VERSION=1.6.0
 #NAME=BrewFlasher
 
 source ./venv/bin/activate
