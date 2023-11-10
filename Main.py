@@ -64,7 +64,14 @@ localedir = os.path.abspath(os.path.join(bundle_dir, 'locales'))
 translate = gettext.translation('brewflasher', localedir, languages=[get_language_code()], fallback=True)
 _ = translate.gettext
 
-__version__ = "1.6.0"
+if get_language_code() is None:
+    language_message = "BrewFlasher has not yet been translated into your preferred language (or has been translated using machines). If you are interested in helping to translate BrewFlasher please create an issue on GitHub at http://github.com/thorrak/brewflasher/issues/"
+elif get_language_code() != "en":
+    language_message = _("BrewFlasher is translated by users like you! If you can suggest any improvements please create an issue on GitHub at http://github.com/thorrak/brewflasher/issues/")
+else:
+    language_message = ""
+
+__version__ = "1.7.0"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 # <p>
@@ -144,11 +151,12 @@ def flash_firmware_using_whatever_is_appropriate(firmware_obj: brewflasher_com_i
         device_name = firmware_obj.family.name
         command_extension = []
 
-        if device_name in ["ESP32", "ESP32-S2", "ESP32-C3"]:
+        if device_name in ["ESP32", "ESP32-S2", "ESP32-C3", "ESP32-S3"]:
             flash_options = {
                 "ESP32": ["esp32", "0x10000"],
                 "ESP32-S2": ["esp32s2", "-z", "--flash_mode", "dio", "--flash_freq", "80m", "0x10000"],
-                "ESP32-C3": ["esp32c3", "-z", "--flash_mode", "dio", "--flash_freq", "80m", "0x10000"]
+                "ESP32-C3": ["esp32c3", "-z", "--flash_mode", "dio", "--flash_freq", "80m", "0x10000"],
+                "ESP32-S3": ["esp32s3", "-z", "--flash_mode", "dio", "--flash_freq", "80m", "0x10000"],
             }
             command_extension.extend(["--chip", flash_options[device_name][0], "--baud", str(baud),
                                       "--before", "default_reset", "--after", "hard_reset", "write_flash"])
