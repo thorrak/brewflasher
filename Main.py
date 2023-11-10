@@ -64,6 +64,13 @@ localedir = os.path.abspath(os.path.join(bundle_dir, 'locales'))
 translate = gettext.translation('brewflasher', localedir, languages=[get_language_code()], fallback=True)
 _ = translate.gettext
 
+if get_language_code() is None:
+    language_message = "BrewFlasher has not yet been translated into your preferred language (or has been translated using machines). If you are interested in helping to translate BrewFlasher please create an issue on GitHub at http://github.com/thorrak/brewflasher/issues/"
+elif get_language_code() != "en":
+    language_message = _("BrewFlasher is translated by users like you! If you can suggest any improvements please create an issue on GitHub at http://github.com/thorrak/brewflasher/issues/")
+else:
+    language_message = ""
+
 __version__ = "1.7.0"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>

@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: brewflasher-desktop\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2023-08-11 22:41-0400\n"
-"PO-Revision-Date: 2023-08-12 02:41\n"
+"POT-Creation-Date: 2023-11-10 09:19-0500\n"
+"PO-Revision-Date: 2023-11-10 14:30\n"
 "Last-Translator: \n"
 "Language-Team: Swedish\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.9.1\n"
+"Generated-By: Babel 2.12.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Crowdin-Project: brewflasher-desktop\n"
 "X-Crowdin-Project-ID: 597357\n"
@@ -18,161 +18,165 @@ msgstr ""
 "X-Crowdin-File-ID: 1\n"
 "Language: sv_SE\n"
 
-#: Main.py:85
+#: Main.py:70
+msgid "BrewFlasher is translated by users like you! If you can suggest any improvements please create an issue on GitHub at http://github.com/thorrak/brewflasher/issues/"
+msgstr "BrewFlasher översätts av användare som du! Om du kan föreslå några förbättringar, skapa gärna en fråga på GitHub på http://github.com/thorrak/brewflasher/issues/"
+
+#: Main.py:92
 msgid "Auto-select"
 msgstr "Automatiskt val"
 
-#: Main.py:86
+#: Main.py:93
 msgid "(first port with Espressif device)"
 msgstr "(första porten med Espressif enhet)"
 
-#: Main.py:128
+#: Main.py:135
 msgid "Must select the project, device family, and firmware to flash before flashing."
 msgstr "Du måste välja projekt, enhetstyp och mjukvara att programmera innan start."
 
-#: Main.py:131
+#: Main.py:138
 msgid "Verifying firmware list is up-to-date before downloading..."
 msgstr "Verfierar att listan på mjukvara är uppdaterad innan nedladdning..."
 
-#: Main.py:133
+#: Main.py:140
 msgid "Firmware list is not up to date."
 msgstr "Listan med mjukvara är inte uppdaterad."
 
-#: Main.py:133 Main.py:169
+#: Main.py:140 Main.py:177
 msgid "Relaunch BrewFlasher and try again."
 msgstr "Starta om BrewFlasher och försök igen."
 
-#: Main.py:136
+#: Main.py:143
 msgid "Downloading firmware..."
 msgstr "Laddar ned mjukvara..."
 
-#: Main.py:138
+#: Main.py:145
 msgid "Error - unable to download firmware.\n"
 msgstr "Fel - kan inte ladda ner mjukvara.\n"
 
-#: Main.py:140
+#: Main.py:147
 msgid "Downloaded successfully!\n"
 msgstr "Nedladdning lyckades!\n"
 
-#: Main.py:169
+#: Main.py:177
 msgid "Invalid device family detected."
 msgstr "Felaktiv enhetstyp detekterades."
 
-#: Main.py:189
+#: Main.py:197
 msgid "ERROR - Cannot automatically select the serial port for this device family. Please explicitly select the correct device to continue."
 msgstr "FEL - Kan inte automatiskt välja seriell port for denna enhetstyp. Var vänlig och välj rätt seriell enhet for att fortsätta."
 
-#: Main.py:223
+#: Main.py:231
 msgid "Invalid flash method detected. Update BrewFlasher and try again."
 msgstr "Ogiltig flashmetod upptäckt. Uppdatera BrewFlasher och försök igen."
 
-#: Main.py:229
+#: Main.py:237
 msgid "Performing 1200 bps touch"
 msgstr "Utför 1200bps kommando"
 
-#: Main.py:232
+#: Main.py:240
 msgid "...done"
 msgstr "...klart"
 
-#: Main.py:236
+#: Main.py:244
 msgid "...unable to perform 1200bps touch."
 msgstr "...kunde inte utföra 1200bps kommando."
 
-#: Main.py:239
+#: Main.py:247
 msgid "Make sure you have selected the correct serial port (auto-select will not work for this chip) and try again."
 msgstr "Säkerställ att du har valt den rätta serialla porten (automatiskt val fungerar inte för denna enhetstyp) och försök igen."
 
-#: Main.py:241 Main.py:262
+#: Main.py:249 Main.py:278
 msgid "Alternatively, you may need to manually set the device into 'flash' mode."
 msgstr "Som alternativ kan du sätta enheten i 'programmerings' läge."
 
-#: Main.py:243 Main.py:264
+#: Main.py:251 Main.py:280
 msgid "For instructions on how to do this, check this website:\n"
 "http://www.brewflasher.com/manualflash/"
 msgstr "För instruktioner om hur man gör detta, kontrollera denna webbplats: \n"
 "http://www.brewflasher.com/manualflash/"
 
-#: Main.py:256
+#: Main.py:261 Main.py:272
 msgid "Firmware flashing FAILED. {tool} raised an error."
 msgstr "Mjukvaru-uppdatering MISSLYCKADES. {tool} returnerade ett fel."
 
-#: Main.py:258
+#: Main.py:264 Main.py:274
 msgid "Try flashing again, or try flashing with a slower speed."
 msgstr "Försök programmera igen, försök med en lägre hastighet."
 
-#: Main.py:270
+#: Main.py:286
 msgid "Firmware successfully flashed. Reset device to switch back to normal boot mode."
 msgstr "Programmering lyckades. Starta om enheten för att återgå till normalt läge."
 
-#: Main.py:355
+#: Main.py:371
 msgid "Connect your device"
 msgstr "Anslut din enhet"
 
-#: Main.py:357
+#: Main.py:373
 msgid "If you chose the serial port auto-select feature you might need to turn off Bluetooth"
 msgstr "Om du väljer en seriell port med automatiskt val så kanske du behöver stänga av Bluetooth"
 
-#: Main.py:361
+#: Main.py:377
 msgid "Avrdude was not found. Arduino firmware cannot be flashed."
 msgstr "Avrdude hittades inte. Arduino firmware kan inte flashas."
 
-#: Main.py:362
+#: Main.py:378
 msgid "To install Avrdude, follow the instructions at https://github.com/avrdudes/avrdude/"
 msgstr "För att installera Avrdude, följ instruktionerna på https://github.com/avrdudes/avrdude/"
 
-#: Main.py:455
+#: Main.py:471
 msgid "Reload serial device list"
 msgstr "Ladda om listan med seriella enheter"
 
-#: Main.py:523
+#: Main.py:539
 msgid "no"
 msgstr "nej"
 
-#: Main.py:524
+#: Main.py:540
 msgid "yes, wipes all data"
 msgstr "ja, radera all data"
 
-#: Main.py:526
+#: Main.py:542
 msgid "Download Firmware and Flash Controller"
 msgstr "Ladda ner mjukvara och programmera enhet"
 
-#: Main.py:536
+#: Main.py:552
 msgid "Serial port"
 msgstr "Serieport"
 
-#: Main.py:537
+#: Main.py:553
 msgid "Project"
 msgstr "Projekt"
 
-#: Main.py:538
+#: Main.py:554
 msgid "Device Family"
 msgstr "Enhetstyp"
 
-#: Main.py:539
+#: Main.py:555
 msgid "Firmware"
 msgstr "Mjukvara"
 
-#: Main.py:540
+#: Main.py:556
 msgid "Baud rate"
 msgstr "Seriell hastighet"
 
-#: Main.py:562
+#: Main.py:578
 msgid "Erase flash"
 msgstr "Radera enhet"
 
-#: Main.py:563
+#: Main.py:579
 msgid "Console"
 msgstr "Konsoll"
 
-#: Main.py:601
+#: Main.py:617
 msgid "Welcome to BrewFlasher {version}"
 msgstr "Välkommen till BrewFlasher {version}"
 
-#: Main.py:611
+#: Main.py:627
 msgid "Exit BrewFlasher"
 msgstr "Avsluta BrewFlasher"
 
-#: Main.py:618
+#: Main.py:634
 msgid "About"
 msgstr "Om"
 
