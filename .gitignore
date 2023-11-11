@@ -112,6 +112,8 @@ staple.sh
 
 # Exclude the pyinstaller directory (if it's here)
 pyinstaller/
+# Same with the cffi directory
+cffi/
 
 dist-pkg/
 /*.pkg
