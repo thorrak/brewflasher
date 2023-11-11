@@ -167,7 +167,10 @@ def flash_firmware_using_whatever_is_appropriate(firmware_obj: brewflasher_com_i
                 command_extension.extend(["0x8000", firmware_obj.full_filepath("partitions")])
 
             if firmware_obj.family.download_url_bootloader and firmware_obj.family.checksum_bootloader:
-                boot_address = "0x0" if device_name == "ESP32-C3" else "0x1000"
+                if device_name == "ESP32-S3" or device_name == "ESP32-C3":
+                    boot_address = "0x0"
+                else:
+                    boot_address = "0x1000"
                 command_extension.extend([boot_address, firmware_obj.full_filepath("bootloader")])
 
         elif device_name == "ESP8266":
