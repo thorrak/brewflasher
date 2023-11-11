@@ -1,0 +1,37 @@
+on:
+  push:
+    branches:
+      - pyinstaller6
+
+
+jobs:
+  build:
+    runs-on: 'windows-latest'
+
+    steps:
+    - uses: actions/checkout@v4.1.1
+    - uses: actions/setup-python@v4.7.1
+      with:
+        python-version: '3.11'
+
+    - run: pip install -r requirements.txt
+    - name: rebuild bootloader
+      run: |
+        pip install wheel
+        pip uninstall -y pyinstaller
+        git clone https://github.com/pyinstaller/pyinstaller
+        git checkout v6.1.0
+        cd pyinstaller
+        cd bootloader
+        python3 ./waf distclean all
+        cd ..
+        pip install .
+        cd ..
+    - name: compile locales
+      run: python3 compile_languages.py locales
+    - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
+
+    - name: upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        path: dist/*

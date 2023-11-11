@@ -4,9 +4,10 @@
 # application build. This is required for notarization to work on MacOS (and may prevent security warnings on Windows)
 
 # Note - this command (at least the "pip install" bit) needs to be done from within the virtualenv
+pip uninstall -y pyinstaller
 git clone https://github.com/pyinstaller/pyinstaller.git
 cd pyinstaller
-git checkout v5.13
+git checkout v6.1.0
 cd bootloader
 python ./waf all
 pip install ..
