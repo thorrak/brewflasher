@@ -11,5 +11,5 @@
     <choice id="com.brewflasher.macos.pkg" visible="false">
         <pkg-ref id="com.brewflasher.macos.pkg"/>
     </choice>
-    <pkg-ref id="com.brewflasher.macos.pkg" version="1.3.0" onConclusion="none">brewflasher.pkg</pkg-ref>
+    <pkg-ref id="com.brewflasher.macos.pkg" version="1.7.1" onConclusion="none">brewflasher.pkg</pkg-ref>
 </installer-gui-script>

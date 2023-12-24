@@ -71,7 +71,7 @@ elif get_language_code() != "en":
 else:
     language_message = ""
 
-__version__ = "1.7.0"
+__version__ = "1.7.1"
 # __flash_help__ = '''
 # <p>This setting depends on your device - but in most cases you will want to use DIO.<p>
 # <p>
