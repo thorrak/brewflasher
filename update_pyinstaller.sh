@@ -7,7 +7,9 @@
 pip uninstall -y pyinstaller
 git clone https://github.com/pyinstaller/pyinstaller.git
 cd pyinstaller
-git checkout v6.1.0
+git fetch
+git reset --hard
+git checkout v6.3.0
 cd bootloader
 python ./waf all
 pip install ..
