@@ -35,6 +35,20 @@ import platform
 #     traces_sample_rate=0.0
 # )
 def get_language_code():
+    if platform.system() == 'Darwin':
+        # For MacOS we need to use the Foundation framework to get the language code. This is because the
+        # getdefaultlocale() function returns None for the language code on MacOS in instances where the language
+        # and the location do not match (ie. English language in Germany). This is a known issue with Python on
+        # MacOS. See https://bugs.python.org/issue18378 for more details.
+        import objc
+        from Foundation import NSLocale
+        # # Get the NSLocale class
+        # NSLocaleClass = objc.lookUpClass('NSLocale')
+
+        # Use the class method 'currentLocale' to retrieve the current locale
+        language_code = NSLocale.preferredLanguages()[0][0:2]
+        return language_code
+
     # getdefaultlocale returns a tuple where first element is 'language_encoding'
     lang_encoding = locale.getdefaultlocale()
 
@@ -42,19 +56,6 @@ def get_language_code():
         # The language code is the first two characters of the locale string
         return lang_encoding[0][0:2]
     else:
-        if platform.system() == 'Darwin':
-            # For MacOS we need to use the Foundation framework to get the language code. This is because the
-            # getdefaultlocale() function returns None for the language code on MacOS in instances where the language
-            # and the location do not match (ie. English language in Germany). This is a known issue with Python on
-            # MacOS. See https://bugs.python.org/issue18378 for more details.
-            import objc
-            from Foundation import NSLocale
-            # # Get the NSLocale class
-            # NSLocaleClass = objc.lookUpClass('NSLocale')
-
-            # Use the class method 'currentLocale' to retrieve the current locale
-            language_code = NSLocale.preferredLanguages()[0][0:2]
-            return language_code
         # Force fallback to English
         return None
 
