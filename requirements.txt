@@ -1,9 +1,9 @@
-esptool==4.6.2
+esptool==4.7.0
 wxPython==4.2.1
 PyInstaller==6.3.0
 requests==2.31.0
 pyserial==3.5
-Babel==2.12.1  # For the command line utility so we can build the .mo files
+Babel==2.14.0  # For the command line utility so we can build the .mo files
 charset_normalizer<3.0
 
 # pyobjc==9.2  # This is for Mac OS X only
