@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - master
+      - new_pyinstaller
 
 
 jobs:
@@ -9,8 +10,8 @@ jobs:
     runs-on: 'windows-latest'
 
     steps:
-    - uses: actions/checkout@v4.1.1
-    - uses: actions/setup-python@v4.7.1
+    - uses: actions/checkout@v4.2.1
+    - uses: actions/setup-python@v5.2.0
       with:
         python-version: '3.11'
 
@@ -20,7 +21,7 @@ jobs:
         pip install wheel
         pip uninstall -y pyinstaller
         git clone https://github.com/pyinstaller/pyinstaller
-        git checkout v6.1.0
+        git checkout v6.11.0
         cd pyinstaller
         cd bootloader
         python3 ./waf distclean all
@@ -32,6 +33,6 @@ jobs:
     - run: pyinstaller --log-level=DEBUG --noconfirm build-on-win.spec
 
     - name: upload artifact
-      uses: actions/upload-artifact@v3.1.3
+      uses: actions/upload-artifact@v4.4.3
       with:
         path: dist/*
