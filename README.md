@@ -69,7 +69,7 @@ Download the latest [release](https://github.com/thorrak/brewflasher/releases). 
 
 You can run BrewFlasher on Linux as follows:
 
-    git clone git@github.com:thorrak/brewflasher.git; cd brewflasher
+    git clone https://github.com/thorrak/brewflasher.git; cd brewflasher
     pip install -r requirements.txt # you may need to e.g. `apt install libgtk-3-dev` for wxPython
     python Main.py
 
